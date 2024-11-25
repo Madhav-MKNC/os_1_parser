@@ -5,7 +5,7 @@ from src.phone_number_lookup import PhoneNumberLookup
 from src.statemapper import StateMapper
 
 
-class Utility:
+class Utils:
     def __init__(self):
         self.district_mapper = DistrictMapper()
         self.state_mapper = StateMapper()

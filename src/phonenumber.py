@@ -1,12 +1,12 @@
 import re
-from src.utility import Utility
+from src.utils import Utils
 from src.phone_number_lookup import PhoneNumberLookup
 
 
 class PhoneNumber:
 
     def __init__(self, phone_lookup):
-        self.utility = Utility()
+        self.utility = Utils()
         phone_number_prefixes = [" contact no ", " mobile, no ", " mobail no ", " mobile no ", " mobal nbr ", "mobail",
                                  "mobail no",
                                  " phone no ", " mobil no ", " cell no ", " cell ", " noumber ", " contact ",

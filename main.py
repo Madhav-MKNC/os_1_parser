@@ -1,11 +1,10 @@
 import re
 import sys
 import os
-import traceback
 from pathlib import Path
 
 from src.address import Address
-from src.utility import Utility
+from src.utils import Utils
 from src.pincode import PinCode
 from src.phonenumber import PhoneNumber
 from src.msoffice import MsOffice
@@ -18,12 +17,12 @@ from src.langmapper import LanguageMapper
 
 output_dir = "output_dir"
 
-utility = Utility()
+utility = Utils()
 pincode = PinCode()
 phone_number_lookup = PhoneNumberLookup()
 phone_number = PhoneNumber(phone_number_lookup)
 ms_office = MsOffice()
-utility = Utility()
+utility = Utils()
 state_mapper = StateMapper()
 district_mapper = DistrictMapper()
 book_mapper = BookMapper()
@@ -83,7 +82,7 @@ def main():
     arguments = sys.argv[1:]
     key, file = arguments[0].split("=")
     if key == "-file":
-        addresses_file_text = read_from_file(file)
+        addresses_file_text = read_input_file(file)
         address_list = process_addresses(addresses_file_text)
         #utility.print_address(address_list)
         file_base_name = Path(file).stem
@@ -107,14 +106,16 @@ def main():
 
 def get_address_list(text):
     address_list = []
-    regex = ['\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ - [a-zA-Z-0-9 ]+:',
-                '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:',
-                '\[\d{1,2}:\d{1,2}, \d{1,2}\/\d{1,2}\/\d{4}\] [a-zA-Z-0-9 ]+:',
-                '\d{1,2}\/\d{1,2}\/\d{1,4}, \d{1,2}:\d{1,2} [aAPp][Mm] - \+[0-9 ]+:',
-                '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:[ 0-9-🪀a-zA-Z:\/\.?]+\s\[',
-                '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:[ 0-9-🪀a-zA-Z:\/\.?]+wa\.me\/\d+[ ]{1,4}[^[]',
-                '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:[ 0-9-🪀a-zA-Z:\/\.?]+=Hi\s+',
-                '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ - [mM]essages and calls','\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ - [yY]ou']
+    regex = [
+        '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ - [a-zA-Z-0-9 ]+:',
+        '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:',
+        '\[\d{1,2}:\d{1,2}, \d{1,2}\/\d{1,2}\/\d{4}\] [a-zA-Z-0-9 ]+:',
+        '\d{1,2}\/\d{1,2}\/\d{1,4}, \d{1,2}:\d{1,2} [aAPp][Mm] - \+[0-9 ]+:',
+        '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:[ 0-9-🪀a-zA-Z:\/\.?]+\s\[',
+        '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:[ 0-9-🪀a-zA-Z:\/\.?]+wa\.me\/\d+[ ]{1,4}[^[]',
+        '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:[ 0-9-🪀a-zA-Z:\/\.?]+=Hi\s+',
+        '\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ - [mM]essages and calls','\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ - [yY]ou'
+    ]
 
     regex_split_main = re.compile("|".join(regex))
     string_address_list = re.split(regex_split_main, text)
@@ -129,7 +130,7 @@ def get_address_list(text):
             address_list.append(address_obj)
     return address_list
 
-def read_from_file(file_name):
+def read_input_file(file_name):
     with open(file_name, "r", encoding="utf-8") as f:
         text = f.read()
     return text
