@@ -28,43 +28,48 @@ book_mapper = BookMapper()
 lang_mapper = LanguageMapper()
 
 
-def get_address_list(text: str) -> list:
-    address_list = []
-    regex = [
-        r'\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ - [a-zA-Z-0-9 ]+:',
-        r'\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:',
-        r'\[\d{1,2}:\d{1,2}, \d{1,2}\/\d{1,2}\/\d{4}\] [a-zA-Z-0-9 ]+:',
-        r'\d{1,2}\/\d{1,2}\/\d{1,4}, \d{1,2}:\d{1,2} [aAPp][Mm] - \+[0-9 ]+:',
-        r'\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:[ 0-9-🪀a-zA-Z:\/\.?]+\s\[',
-        r'\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:[ 0-9-🪀a-zA-Z:\/\.?]+wa\.me\/\d+[ ]{1,4}[^[]',
-        r'\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ [apAP][mM] - [a-zA-Z-0-9 ]+:[ 0-9-🪀a-zA-Z:\/\.?]+=Hi\s+',
-        r'\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ - [mM]essages and calls',
-        r'\d{1,2}\/\d{1,2}\/\d{2}, \d+:\d+ - [yY]ou'
-    ]
-    string_address_list = re.split(re.compile("|".join(regex)), text)
-    if len(string_address_list) <= 1:
-        string_address_list = re.split("\n", text)
+def get_address_list(chat_log: str) -> list:
+    # NOTE: notes.md note 01
+    # Remove the first line from the text
+    newline_index = chat_log.find('\n')
+    if newline_index != -1:
+        chat_log = chat_log[newline_index + 1:]
 
+    pattern = r"(\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2}(?: (?:AM|PM))? -)"
+    split_log = re.split(pattern, chat_log)
+    
+    # NOTE: notes.md note 02
+    # relevant log format: DD/MM/YY, HH:MM - CONTACT: MESSAGE
+    # split around "DD/MM/YY HH:MM (AM/PM)" -> ['', 'date, time', 'contact: message', ...] 
+    # so only append alternate logs skipping '' and logs that dont contain ':' (not a relevant message log)
+    # rest of the part after first ":" is the message.
+    string_address_list = []
+    for i in range(0, len(split_log), 2):
+        log = split_log[i]
+        if log and ":" in log:
+            message = log[log.find(':') + 1:].strip()
+            string_address_list.append(message)
+
+    address_list = []
     for address_text in string_address_list:
-        address_text = address_text.replace(r"[\s]+", " ")
-        utils.white_space_cleaner(address_text)
-        if len(address_text.strip()) > 0 and not utils.whatsapp_text(address_text):
+        address_text = utils.text_cleaner(address_text)
+        if address_text and not utils.whatsapp_text(address_text):
             address_obj = Address(address_text.lower(), None, None, None, None, None)
             address_list.append(address_obj)
     return address_list
-
 
 def process_addresses(file_text):
     if file_text is None or not len(file_text):
         return []
 
     address_list = get_address_list(file_text)
-
-    for address_obj in address_list:
-        print("Main:process_addresses")
+    print(len(address_list))
+    
+    address_obj_list = []
+    phone_numbers = []
+    for itr, address_obj in enumerate(address_list):
+        print("Main:process_addresses", itr)
         try:
-            if not utils.is_valid_address(address_obj.address):
-                continue
             address_string = address_obj.address
             address_string = pincode.pin_code_extender(address_string)
             address_string = utils.clean_stopping_words_and_phrases(address_string)
@@ -76,8 +81,12 @@ def process_addresses(file_text):
             address_obj.address = address_string
             pincode.update_pin_number(address_obj)
             phone_number.update_phone_number(address_obj)
-            address_obj.address = utils.white_space_cleaner(address_obj.address)
+            address_obj.address = utils.text_cleaner(address_obj.address)
             address_obj.capitalize_address()
+            
+            # phone number
+            if address_obj.phone:
+                phone_numbers.append(address_obj.phone)
 
             #Attribute from address parsing
             state_add, dist_add, occ_count = utils.get_data_from_address(address_obj.address)
@@ -90,17 +99,14 @@ def process_addresses(file_text):
             address_obj.set_book_name(book_mapper.get_book_from_address_record(address_string))
             address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
 
-            address_list.append(address_obj)
-            # print(address_obj.print_attributes())
+            address_obj_list.append(address_obj)
         except:
-            # traceback.print_exception(*sys.exc_info())
-            # pass
-            #print("-------------------------")
             print("Error address: " + address_obj.address)
 
-    address_list.sort(key=lambda x: len(x.address_old), reverse=True)
-    utils.update_reorder_and_repeat(address_list)
-    return address_list
+    address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True)
+    utils.update_reorder_and_repeat(address_obj_list)
+    phone_number_lookup.update_phone_numbers(phone_numbers)
+    return address_obj_list
 
 def main():
     if not os.path.exists(output_dir): 
@@ -115,8 +121,6 @@ def main():
 
         output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xls")
         ms_office.export_to_MS_Excel(address_list, output_file_path_xls)
-
-        phone_number_lookup.update_phone_numbers()
 
     elif flag in ['-n', '-name', '--n', '--name']:
         address_list = ms_office.import_from_Excel_sheet(fname)

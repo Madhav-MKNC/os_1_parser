@@ -76,7 +76,7 @@ class Utils:
             for match in hash_matches:
                 replacer = match.replace("#", "")
                 text = text.replace(match, replacer)
-        text = self.white_space_cleaner(text)
+        text = self.text_cleaner(text)
         return text
 
     def phrases_cleaner(self, text):
@@ -94,13 +94,13 @@ class Utils:
         text = text.replace(" Dt ", "Dist")
         return text
 
-    def white_space_cleaner(self, text):
+    def text_cleaner(self, text):
         text = self.remove_emoji(text)
         text = self.replace_white_spaces_single_space(text)
         text = self.comma_space_remover(text)
         text = self.empty_brackets_remover(text)
         text = self.clean_slash_remover(text)
-        return text
+        return text.strip()
 
     def comma_space_remover(self, text):
         # "     ," => ", "

@@ -29,7 +29,7 @@ class PinCode:
                     address_obj.district = district
                     address_obj.block = block
             if pin is not None:
-                address_obj.address = self.utility.white_space_cleaner(address_obj.address) + " Pin " + pin
+                address_obj.address = self.utility.text_cleaner(address_obj.address) + " Pin " + pin
         return
 
     def pad_pin_code(self, text_input, pad_word):
