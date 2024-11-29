@@ -8,13 +8,13 @@ class PhoneNumberLookup:
     def __init__(self):
         self.number_file = os.getcwd() + "/src/phone_number_lookup.txt"
         self.numbers = []
-        if path.exists(self.number_file):
-            with open(self.number_file, 'r') as f:
-                phone_number_text = f.read()
-                phone_number_list = phone_number_text.split("\n")
-            for number in phone_number_list:
-                if len(number.strip()) > 0:
-                    self.numbers.append(int(number.strip()))
+        # if path.exists(self.number_file):
+        #     with open(self.number_file, 'r') as f:
+        #         phone_number_text = f.read()
+        #         phone_number_list = phone_number_text.split("\n")
+        #     for number in phone_number_list:
+        #         if len(number.strip()) > 0:
+        #             self.numbers.append(int(number.strip()))
         list(set(self.numbers)).sort()
 
     def search_phone_number(self, number_string):
@@ -49,10 +49,10 @@ class PhoneNumberLookup:
             bisect.insort(self.numbers, number)
         #print(self.numbers)
 
-    def update_phone_numbers(self):
+    def update_phone_numbers(self, numbers: list):
         # print("PhoneNumberLookup:update_phone_numbers")
         # print(self.numbers)
-        with open(self.number_file, 'w') as f:
-            number_string = list(map(str, self.numbers))
+        with open(self.number_file, 'w', encoding='utf-8') as f:
+            number_string = list(map(str, numbers))
             #print("Phone numbers : %s " % self.numbers)
             f.write('\n'.join(number_string))

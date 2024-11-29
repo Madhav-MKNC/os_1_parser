@@ -1,12 +1,12 @@
 import re
-from src.utility import Utility
+from src.utils import Utils
 from src.phone_number_lookup import PhoneNumberLookup
 
 
 class PhoneNumber:
 
     def __init__(self, phone_lookup):
-        self.utility = Utility()
+        self.utility = Utils()
         phone_number_prefixes = [" contact no ", " mobile, no ", " mobail no ", " mobile no ", " mobal nbr ", "mobail",
                                  "mobail no",
                                  " phone no ", " mobil no ", " cell no ", " cell ", " noumber ", " contact ",
@@ -49,7 +49,7 @@ class PhoneNumber:
                 match_replacer = match_replacer.replace("O", "0")
                 text = text.replace(match, match_replacer)
 
-        text = self.utility.white_space_cleaner(text)
+        text = self.utility.text_cleaner(text)
         return text
 
     def pad_phone_number(self, text, pad_word):
@@ -193,13 +193,13 @@ class PhoneNumber:
                 phones_as_string = " , ".join(phone_list)
                 address_obj.phone = phones_as_string
                 address_obj.address = address_obj.address + " PH " + phones_as_string
-                address_obj.address = self.utility.white_space_cleaner(address_obj.address)
+                address_obj.address = self.utility.text_cleaner(address_obj.address)
                 return address_obj.is_reorder
             elif len(highlighted_phone_list) > 0:
                 highlighted_phone = highlighted_phone_list[0]
                 phone = highlighted_phone.replace("*", "")
                 address_obj.address = (address_obj.address.replace(highlighted_phone, "").strip() + " PH " + phone)
-                address_obj.address = self.utility.white_space_cleaner(address_obj.address)
+                address_obj.address = self.utility.text_cleaner(address_obj.address)
                 address_obj.phone = phone
                 # is_reorder = self.phone_lookup.search_phone_number(phone)
                 # address_obj.is_reorder = is_reorder

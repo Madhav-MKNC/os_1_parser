@@ -1,12 +1,12 @@
 from src.pinlocationmapper import PinLocationMapper
-from src.utility import Utility
+from src.utils import Utils
 import re
 
 
 class PinCode:
 
     def __init__(self):
-        self.utility = Utility()
+        self.utility = Utils()
         pin_number_prefixes = [" pin ", " pin/ ", " pin_ ", " cod ", "p/c ", " pinn cod ", " code ", " cd ",
                                " pincode ", " cod ", "pin ", "pin,", " pinkod ", "pin-", " pino "]
         self.pin_number_prefixes = self.utility.reverse_list(sorted(list(set(pin_number_prefixes)), key=len))
@@ -29,7 +29,7 @@ class PinCode:
                     address_obj.district = district
                     address_obj.block = block
             if pin is not None:
-                address_obj.address = self.utility.white_space_cleaner(address_obj.address) + " Pin " + pin
+                address_obj.address = self.utility.text_cleaner(address_obj.address) + " Pin " + pin
         return
 
     def pad_pin_code(self, text_input, pad_word):

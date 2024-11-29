@@ -1,21 +1,23 @@
 from datetime import date, datetime
 import re
+import os
 from src.districtmapper import DistrictMapper
 from src.phone_number_lookup import PhoneNumberLookup
 from src.statemapper import StateMapper
 
 
-class Utility:
+class Utils:
     def __init__(self):
         self.district_mapper = DistrictMapper()
         self.state_mapper = StateMapper()
         self.phone_lookup = PhoneNumberLookup()
 
-    def generate_output_file_name(self, file_base_name, extension):
+    def generate_output_file_path(self, output_dir, file_base_name, extension):
         now = datetime.now()
         file_name_prefix_date = date.today().strftime("%Y%m%d")
-        file_name_prefix_time = str(now.hour) + str(now.minute) + str(now.second)
-        return "%s_%s_%s.%s" % (file_name_prefix_date, file_name_prefix_time, file_base_name, extension)
+        file_name_prefix_time = str(now.hour) + str(now.minute) + str(now.second)     
+        output_file_name = "%s_%s_%s.%s" % (file_name_prefix_date, file_name_prefix_time, file_base_name, extension)
+        return os.path.join(output_dir, output_file_name)
 
     def reverse_list(self, lst):
         return lst[::-1]
@@ -64,7 +66,7 @@ class Utility:
         text = re.sub(r"/ ", " ", text)
         text = re.sub(r"%", "", text)
         text = text.replace("address", "")
-        text = re.sub("house no[ .:=\/\-*#~]+", "#", text)
+        text = re.sub(r"house no[ .:=\/\-*#~]+", "#", text)
         text = re.sub("house no", "#", text)
 
         # Hash Replacer
@@ -74,7 +76,7 @@ class Utility:
             for match in hash_matches:
                 replacer = match.replace("#", "")
                 text = text.replace(match, replacer)
-        text = self.white_space_cleaner(text)
+        text = self.text_cleaner(text)
         return text
 
     def phrases_cleaner(self, text):
@@ -92,13 +94,13 @@ class Utility:
         text = text.replace(" Dt ", "Dist")
         return text
 
-    def white_space_cleaner(self, text):
+    def text_cleaner(self, text):
         text = self.remove_emoji(text)
         text = self.replace_white_spaces_single_space(text)
         text = self.comma_space_remover(text)
         text = self.empty_brackets_remover(text)
         text = self.clean_slash_remover(text)
-        return text
+        return text.strip()
 
     def comma_space_remover(self, text):
         # "     ," => ", "
@@ -167,7 +169,7 @@ class Utility:
         return True
 
     def update_address_name(self, address):
-        name_regex = "\[.*?\]|.*?\]"
+        name_regex = r"\[.*?\]|.*?\]"
         address_text = address.address
         name_regexes = re.findall(name_regex, address_text)
         if len(name_regexes) > 0:
@@ -269,3 +271,9 @@ class Utility:
                         address.is_reorder = is_reorder
                     else:
                         self.phone_lookup.save_phone_number(int(phone))
+
+    def read_input_file(self, file_name):
+        with open(file_name, "r", encoding="utf-8") as f:
+            text = f.read()
+        return text
+
