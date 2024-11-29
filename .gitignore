@@ -4,3 +4,7 @@ __pycache__/
 
 *.pyc
 *.pyo
+
+output_dir/
+src/phone_number_lookup.txt
+whatsapp.txt
