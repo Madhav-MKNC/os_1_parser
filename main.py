@@ -34,6 +34,8 @@ def get_address_list(chat_log: str) -> list:
     # NOTE: notes.md note 01
     # Remove the first line from the text
     newline_index = chat_log.find('\n')
+    print(f"{BLUE}*** Removing first line from the input file ***{RESET}")
+    print(f"*** First line: [{YELLOW}{chat_log[0:newline_index]}{RESET}]")
     if newline_index != -1:
         chat_log = chat_log[newline_index + 1:]
 
@@ -42,11 +44,13 @@ def get_address_list(chat_log: str) -> list:
 
     pattern = r"(?i)(\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2}(?: (?:am|pm))? -)"
     split_log = re.split(pattern, chat_log)
+    print(f"{GREEN}*** len(split_log): [{len(split_log)}]{RESET}")
+    print(f"*** Splitted input: {YELLOW}{str(split_log)[0:500]}{RESET}")
     
     # for i in split_log:
     #     print(f"{RED}=============================================={RESET}")
     #     print(f"{BLUE}log = {i}{RESET}")
-    #     print(f"{YELLOW}=============================================={RESET}")
+    #     print(f"{YELLOW}=============================================={RESET}\n")
     
     # NOTE: notes.md note 02
     # relevant log format: DD/MM/YY, HH:MM - CONTACT: MESSAGE
@@ -63,9 +67,17 @@ def get_address_list(chat_log: str) -> list:
     address_list = []
     for address_text in string_address_list:
         address_text = utils.text_cleaner(address_text)
-        if address_text and not utils.whatsapp_text(address_text):
+        if utils.valid_text(address_text):
             address_obj = Address(address_text.lower(), None, None, None, None, None)
             address_list.append(address_obj)
+    
+    print(f"{GREEN}*** Total addresses found: [{len(address_list)}]{RESET}")
+    with open('tmp/addresses_fetched.txt', 'w', encoding='utf-8') as file:
+        addresses_fetched = ""
+        for i in address_list:
+            addresses_fetched += "\n\n" + str(i.address) + "\n\n"
+        file.write(addresses_fetched.strip())
+
     return address_list
 
 def process_addresses(file_text):
@@ -74,19 +86,11 @@ def process_addresses(file_text):
 
     address_list = get_address_list(file_text)
     
-    output = ""
-    for i in address_list:
-        output += "\n\n" + str(i.address) + "\n\n"
-
-    with open('output.txt', 'w', encoding='utf-8') as file:
-        file.write(output)
-
-    print(len(address_list))
-    
     address_obj_list = []
     phone_numbers = []
+    
+    print(f"{BLUE}*** Processing Addresses ***{RESET}")
     for itr, address_obj in enumerate(address_list):
-        print("Main:process_addresses", itr)
         try:
             address_string = address_obj.address
             address_string = pincode.pin_code_extender(address_string)
@@ -118,12 +122,14 @@ def process_addresses(file_text):
             address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
 
             address_obj_list.append(address_obj)
+            print(f"{GREEN}[DONE {itr}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
         except:
-            print("Error address: " + address_obj.address)
+            print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}\n")
 
     address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True)
     utils.update_reorder_and_repeat(address_obj_list)
     phone_number_lookup.update_phone_numbers(phone_numbers)
+    print(f"\n{GREEN}*** Successfully processed ***{RESET}")
     return address_obj_list
 
 def main():
@@ -138,7 +144,6 @@ def main():
         address_list = process_addresses(file_text)
 
         output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xls")
-        print(output_file_path_xls)
         ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
 
     elif flag in ['-n', '-name', '--n', '--name']:
@@ -148,9 +153,9 @@ def main():
         ms_office.export_to_MS_Excel(address_list, str(fname.split(".")[0] + "_name.xls"))
 
     else:
-        print("[!] Invalid argument")
-        print("[-file, -f, --f, --file]: for file processing \n[-name, -n, --n, --name]: generate name column")
-        print("[Example]: python main.py -f whatsapp.txt")
+        print(f"{RED}[!] Invalid argument{RESET}")
+        print(f"{RED}[-file, -f, --f, --file]: for file processing \n[-name, -n, --n, --name]: generate name column{RESET}")
+        print(f"{RED}[Example]: python main.py -f whatsapp.txt{RESET}")
 
 
 if __name__ == "__main__":

@@ -186,14 +186,14 @@ class Utils:
     def star_remover(self, text):
         return text.replace("*", " ").strip()
 
-    def whatsapp_text(self, address_text):
+    def valid_text(self, address_text):
         address_text = address_text.lower()
-        if address_text.find("भेज दी जी सेवा") != -1 or address_text.find("media omitted") != -1 or address_text.find(
+        if not address_text or address_text.find("भेज दी जी सेवा") != -1 or address_text.find("media omitted") != -1 or address_text.find(
                 "this message was deleted") != -1 or address_text.find("end-to-end encrypted") != -1 or address_text.find(
             "message was deleted") != -1 or address_text.find("security code with") != -1 or address_text.find(
             "ou added") != -1 or address_text.find("removed") != -1:
-            return True
-        return False
+            return False
+        return True
 
     def get_data_from_address(self, address_string):
         dist_state, count = self.district_mapper.get_state_dist_from_add_string_by_add_rec(address_string)
