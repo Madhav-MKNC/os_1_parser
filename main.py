@@ -40,13 +40,13 @@ def get_address_list(chat_log: str) -> list:
     # I dont am/pm wale format me "\u202f" kahan se aajata hai (eg: "10:18\u202fam" instead of "10:18 am")
     chat_log = chat_log.replace('\u202f', ' ')
 
-    pattern = r"(?i)(\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2} (?:am|pm) -)"
+    pattern = r"(?i)(\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2}(?: (?:am|pm))? -)"
     split_log = re.split(pattern, chat_log)
     
     # for i in split_log:
-    #     print(f"{RED}===================={RESET}")
+    #     print(f"{RED}=============================================={RESET}")
     #     print(f"{BLUE}log = {i}{RESET}")
-    #     print(f"{YELLOW}===================={RESET}")
+    #     print(f"{YELLOW}=============================================={RESET}")
     
     # NOTE: notes.md note 02
     # relevant log format: DD/MM/YY, HH:MM - CONTACT: MESSAGE
