@@ -14,4 +14,4 @@ pip install -r requirements.txt;
 python main.py -f path/to/address/file.txt
 ```
 
-Example: <code>python main.py WhatsApp_Chat_with_Madhav_28_Nov.txt</code>
+Example: <code>python main.py -f WhatsApp_Chat_with_Madhav_28_Nov.txt</code>

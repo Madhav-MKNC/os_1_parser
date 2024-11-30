@@ -14,6 +14,8 @@ from src.districtmapper import DistrictMapper
 from src.bookmapper import BookMapper
 from src.langmapper import LanguageMapper
 
+from src.colors import *
+
 
 output_dir = "output_dir"
 
@@ -35,8 +37,16 @@ def get_address_list(chat_log: str) -> list:
     if newline_index != -1:
         chat_log = chat_log[newline_index + 1:]
 
-    pattern = r"(\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2}(?: (?:AM|PM))? -)"
+    # I dont am/pm wale format me "\u202f" kahan se aajata hai (eg: "10:18\u202fam" instead of "10:18 am")
+    chat_log = chat_log.replace('\u202f', ' ')
+
+    pattern = r"(?i)(\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2} (?:am|pm) -)"
     split_log = re.split(pattern, chat_log)
+    
+    # for i in split_log:
+    #     print(f"{RED}===================={RESET}")
+    #     print(f"{BLUE}log = {i}{RESET}")
+    #     print(f"{YELLOW}===================={RESET}")
     
     # NOTE: notes.md note 02
     # relevant log format: DD/MM/YY, HH:MM - CONTACT: MESSAGE
@@ -63,6 +73,14 @@ def process_addresses(file_text):
         return []
 
     address_list = get_address_list(file_text)
+    
+    output = ""
+    for i in address_list:
+        output += "\n\n" + str(i.address) + "\n\n"
+
+    with open('output.txt', 'w', encoding='utf-8') as file:
+        file.write(output)
+
     print(len(address_list))
     
     address_obj_list = []
@@ -120,7 +138,8 @@ def main():
         address_list = process_addresses(file_text)
 
         output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xls")
-        ms_office.export_to_MS_Excel(address_list, output_file_path_xls)
+        print(output_file_path_xls)
+        ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
 
     elif flag in ['-n', '-name', '--n', '--name']:
         address_list = ms_office.import_from_Excel_sheet(fname)
