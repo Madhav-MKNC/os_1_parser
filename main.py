@@ -62,11 +62,12 @@ def get_address_list(chat_log: str) -> list:
         log = split_log[i]
         if log and ":" in log:
             message = log[log.find(':') + 1:].strip()
-            string_address_list.append(message)
+            string_address_list.append(message.lower())
 
     address_list = []
     for address_text in string_address_list:
         address_text = utils.text_cleaner(address_text)
+        address_text = utils.clean_stopping_words_and_phrases(address_text)
         if utils.valid_text(address_text):
             address_obj = Address(address_text.lower(), None, None, None, None, None)
             address_list.append(address_obj)
@@ -104,7 +105,6 @@ def process_addresses(file_text):
             pincode.update_pin_number(address_obj)
             phone_number.update_phone_number(address_obj)
             address_obj.address = utils.text_cleaner(address_obj.address)
-            address_obj.capitalize_address()
             
             # phone number
             if address_obj.phone:
@@ -123,8 +123,9 @@ def process_addresses(file_text):
 
             address_obj_list.append(address_obj)
             print(f"{GREEN}[DONE {itr}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
-        except:
-            print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}\n")
+        except Exception as err:
+            print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
+            print(f'{YELLOW}str{err}{RESET}\n')
 
     address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True)
     utils.update_reorder_and_repeat(address_obj_list)
