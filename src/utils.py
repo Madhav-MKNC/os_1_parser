@@ -82,15 +82,19 @@ class Utils:
     def phrases_cleaner(self, text):
         text = text.replace("plz comment madi in this format", "")
         text = text.replace("email", "").replace("e mail", "").replace("e-mail", "").replace("mail id", "")
-        text = text.replace("name", "")
-        text = text.replace(" code ", " ").replace("code.", " ").replace("code,", " ").replace("code:", " ").replace("code-", " ")
+        text = text.replace(" name", "")
+        text = text.replace(".", " ").replace("*", " ")
+        text = text.replace(" code ", " ").replace(" code.", " ").replace(" code,", " ").replace(" code:", " ").replace(" code-", " ")
         text = text.replace("number", " ")
-        text = text.replace("num", " ")
+        text = text.replace(" num", " ").replace("num:", " ").replace("num-", " ")
+        text = text.replace("no.", " ").replace("no-", " ").replace("no:", " ")
         text = text.replace("(p)", " post ")
         text = text.replace("pincode", " ")
         text = text.replace("mobile", " ")
-        text = text.replace("phone", " ")
+        text = text.replace("phone", " ").replace(" ph ", " ")
         text = text.replace(" pin,", " ").replace(" pin.", " ").replace(" pin:", " ").replace(" pin-", " ").replace(" pin ", " ")
+        text = text.strip()
+        if text.startswith("-"): text = text[1:]
         return text
 
     def text_cleaner(self, text):
