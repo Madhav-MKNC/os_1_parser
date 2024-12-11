@@ -35,16 +35,16 @@ class PinCode:
     def pad_pin_code(self, text_input, pad_word):
         text = text_input
         space = " "
-        pin_regex_0 = "[<]\d{6}[>]"  # |<334333>|
-        pin_regex_1 = "[ ]\d{6}$"  # | 334333|
-        pin_regex_2 = "[ ]\d{6}[ ]"  # | 334333 |
-        pin_regex_3 = "[^0-9*]\d{6}[^0-9*]"  # |n334333d|
-        pin_regex_4 = "[ ]\d{4}[ ]\d{2}[ ]"  # | 3343 33 |
-        pin_regex_5 = "[^0-9]\d{3}[ ]\d{3}"  # |334 333|
-        pin_regex_6 = "[ ]\d{4}[ ]\d{2}$"  # | 3343 33|
-        pin_regex_7 = "[ ]\d{4}[ ]\d{2}[ ]"  # | 3343 33 |
-        pin_regex_8 = "[^0-9*]\d{6}[ ]"  # |n3343 33 |
-        pin_regex_9 = "[ ]\d{6}[^0-9*]"  # |334333n|
+        pin_regex_0 = r"[<]\d{6}[>]"  # |<334333>|
+        pin_regex_1 = r"[ ]\d{6}$"  # | 334333|
+        pin_regex_2 = r"[ ]\d{6}[ ]"  # | 334333 |
+        pin_regex_3 = r"[^0-9*]\d{6}[^0-9*]"  # |n334333d|
+        pin_regex_4 = r"[ ]\d{4}[ ]\d{2}[ ]"  # | 3343 33 |
+        pin_regex_5 = r"[^0-9]\d{3}[ ]\d{3}"  # |334 333|
+        pin_regex_6 = r"[ ]\d{4}[ ]\d{2}$"  # | 3343 33|
+        pin_regex_7 = r"[ ]\d{4}[ ]\d{2}[ ]"  # | 3343 33 |
+        pin_regex_8 = r"[^0-9*]\d{6}[ ]"  # |n3343 33 |
+        pin_regex_9 = r"[ ]\d{6}[^0-9*]"  # |334333n|
 
         pin_regex_0_matches = re.findall(pin_regex_0, text)
         pin_regex_1_matches = re.findall(pin_regex_1, text)
@@ -138,7 +138,7 @@ class PinCode:
 
     def get_pin_code_hilighted(self, address_obj):
         #print(address_obj.address)
-        highlighted_pin_code_regex = "[*]\d{6}[*]"
+        highlighted_pin_code_regex = r"[*]\d{6}[*]"
         pin_codes = re.findall(highlighted_pin_code_regex, address_obj.address)
         #print(pin_codes)
         return list(set(pin_codes))

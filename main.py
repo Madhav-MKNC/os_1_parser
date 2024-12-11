@@ -45,7 +45,7 @@ def get_address_list(chat_log: str) -> list:
     pattern = r"(?i)(\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2}(?: (?:am|pm))? -)"
     split_log = re.split(pattern, chat_log)
     print(f"{GREEN}*** len(split_log): [{len(split_log)}]{RESET}")
-    print(f"*** Splitted input: {YELLOW}{str(split_log)[0:500]}{RESET}")
+    print(f"*** Splitted input: {YELLOW}{str(split_log)[0:100]}..., ...]{RESET}")
     
     # for i in split_log:
     #     print(f"{RED}=============================================={RESET}")
@@ -55,7 +55,7 @@ def get_address_list(chat_log: str) -> list:
     # NOTE: notes.md note 02
     # relevant log format: DD/MM/YY, HH:MM - CONTACT: MESSAGE
     # split around "DD/MM/YY HH:MM (AM/PM)" -> ['', 'date, time', 'contact: message', ...] 
-    # so only append alternate logs skipping '' and logs that dont contain ':' (not a relevant message log)
+    # so only append alternate logs skipping '' and logs that excludes ':' (not a relevant message log)
     # rest of the part after first ":" is the message.
     string_address_list = []
     for i in range(0, len(split_log), 2):
@@ -73,6 +73,7 @@ def get_address_list(chat_log: str) -> list:
             address_list.append(address_obj)
     
     print(f"{GREEN}*** Total addresses found: [{len(address_list)}]{RESET}")
+    if not os.path.exists('tmp'): os.makedirs('tmp')
     with open('tmp/addresses_fetched.txt', 'w', encoding='utf-8') as file:
         addresses_fetched = ""
         for i in address_list:
@@ -88,7 +89,7 @@ def process_addresses(file_text):
     address_list = get_address_list(file_text)
     
     address_obj_list = []
-    phone_numbers = []
+    # phone_numbers = []
     
     print(f"{BLUE}*** Processing Addresses ***{RESET}")
     for itr, address_obj in enumerate(address_list):
@@ -106,9 +107,9 @@ def process_addresses(file_text):
             phone_number.update_phone_number(address_obj)
             address_obj.address = utils.text_cleaner(address_obj.address)
             
-            # phone number
-            if address_obj.phone:
-                phone_numbers.append(address_obj.phone)
+            # # phone number
+            # if address_obj.phone:
+            #     phone_numbers.append(address_obj.phone)
 
             #Attribute from address parsing
             state_add, dist_add, occ_count = utils.get_data_from_address(address_obj.address)
@@ -129,8 +130,9 @@ def process_addresses(file_text):
 
     address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True)
     utils.update_reorder_and_repeat(address_obj_list)
-    phone_number_lookup.update_phone_numbers(phone_numbers)
-    print(f"\n{GREEN}*** Successfully processed ***{RESET}")
+    phone_number.update_phone_numbers_lookup()
+    print(f"\n{GREEN}[ successfully processed ]{RESET}")
+    print(f"{GREEN}[ phone_number_lookup ✔ ]{RESET}")
     return address_obj_list
 
 def main():

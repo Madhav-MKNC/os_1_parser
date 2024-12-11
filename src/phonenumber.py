@@ -21,9 +21,9 @@ class PhoneNumber:
         self.phone_lookup = phone_lookup
 
     def collapse_phone_number(self, text):
-        regex_1 = '\d+[ ]\d+[ ]\d+'
-        regex_2 = '\d[iIoO]\d'
-        regex_3 ='\d[iIoO]+$'
+        regex_1 = r'\d+[ ]\d+[ ]\d+'
+        regex_2 = r'\d[iIoO]\d'
+        regex_3 = r'\d[iIoO]+$'
 
         match_1 = re.findall(regex_1, text)
         if len(match_1) > 0:
@@ -56,20 +56,20 @@ class PhoneNumber:
         space = " "
         self.collapse_phone_number(text)
 
-        regex_1 = "[6-9]\d{9}"  # phone number at the beginning
-        regex_2 = "[ ][6-9]\d{9}[ ]|[ ][6-9]\d{9}$"  # " 7534564334 "
-        regex_3 = "[6-9]\d{4}[ ]\d{5}"  # "65345 64334"
-        regex_4 = "[^*0-9][6-9]\d{9}|[^*0-9][6-9]\d{9}$"  # "n4534564334"
-        regex_5 = "91\d{10}"  # "914534564334"
-        regex_6 = "91-\d{10}"  # "91-4534564334"
-        regex_7 = "[6-9] \d{9}" #   "7 217696915"
-        regex_8 = "[6-9]\d{8} \d{1} " #"721769691 5"
-        regex_9 = "[6-9]\d{1} \d{4} \d{4} "  # "72 1769 6915"
-        regex_10 = "[6-9]\d{5} \d{4} "  # "721769 6915"
-        regex_11 = "[6-9]\d{2} \d{2} \d{2} \d{3}"  # "721 76 96 915"
-        regex_12 = " [6-9][0-9 ]+"  # "7 2 1 7 6 9 6 9 1 5"
-        regex_13 = "[6-9]\d{2} \d{2} \d{5}" #"721 76 96915"
-        regex_14 = "[6-9]\d{4}_\d{5}" #98151_32964
+        regex_1 = r"[6-9]\d{9}"  # phone number at the beginning
+        regex_2 = r"[ ][6-9]\d{9}[ ]|[ ][6-9]\d{9}$"  # " 7534564334 "
+        regex_3 = r"[6-9]\d{4}[ ]\d{5}"  # "65345 64334"
+        regex_4 = r"[^*0-9][6-9]\d{9}|[^*0-9][6-9]\d{9}$"  # "n4534564334"
+        regex_5 = r"91\d{10}"  # "914534564334"
+        regex_6 = r"91-\d{10}"  # "91-4534564334"
+        regex_7 = r"[6-9] \d{9}" #   "7 217696915"
+        regex_8 = r"[6-9]\d{8} \d{1} " #"721769691 5"
+        regex_9 = r"[6-9]\d{1} \d{4} \d{4} "  # "72 1769 6915"
+        regex_10 = r"[6-9]\d{5} \d{4} "  # "721769 6915"
+        regex_11 = r"[6-9]\d{2} \d{2} \d{2} \d{3}"  # "721 76 96 915"
+        regex_12 = r" [6-9][0-9 ]+"  # "7 2 1 7 6 9 6 9 1 5"
+        regex_13 = r"[6-9]\d{2} \d{2} \d{5}" #"721 76 96915"
+        regex_14 = r"[6-9]\d{4}_\d{5}" #98151_32964
 
 
         regex_1_matches = re.findall(regex_1, text)
@@ -173,7 +173,7 @@ class PhoneNumber:
             return address
 
     def get_hilighted_phone_number_from_address(self, address_obj):
-        highlighted_phone_number_regex = "[*]\d{10,12}[*]"
+        highlighted_phone_number_regex = r"[*]\d{10,12}[*]"
         return list(set(re.findall(highlighted_phone_number_regex, address_obj.address)))
 
     def update_phone_number(self, address_obj):
@@ -185,11 +185,11 @@ class PhoneNumber:
                     phone = highlighted_phone.replace("*", "")
                     phone_list.append(phone)
                     address_obj.address = address_obj.address.replace(highlighted_phone, "").strip()
-                    # is_reorder = self.phone_lookup.search_phone_number(phone)
-                    # if is_reorder:
-                    #     address_obj.is_reorder = is_reorder
-                    # else:
-                    #     self.phone_lookup.save_phone_number(int(phone))
+                    is_reorder = self.phone_lookup.search_phone_number(phone)
+                    if is_reorder:
+                        address_obj.is_reorder = is_reorder
+                    else:
+                        self.phone_lookup.save_phone_number(int(phone))
                 phones_as_string = " , ".join(phone_list)
                 address_obj.phone = phones_as_string
                 address_obj.address = address_obj.address + " PH " + phones_as_string
@@ -201,8 +201,11 @@ class PhoneNumber:
                 address_obj.address = (address_obj.address.replace(highlighted_phone, "").strip() + " PH " + phone)
                 address_obj.address = self.utility.text_cleaner(address_obj.address)
                 address_obj.phone = phone
-                # is_reorder = self.phone_lookup.search_phone_number(phone)
-                # address_obj.is_reorder = is_reorder
-                # if not is_reorder:
-                #     self.phone_lookup.save_phone_number(int(phone))
-                # return is_reorder
+                is_reorder = self.phone_lookup.search_phone_number(phone)
+                address_obj.is_reorder = is_reorder
+                if not is_reorder:
+                    self.phone_lookup.save_phone_number(int(phone))
+                return is_reorder
+
+    def update_phone_numbers_lookup(self, numbers=[]):
+        self.phone_lookup.update_phone_numbers(numbers)
