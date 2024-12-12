@@ -1,193 +1,122 @@
-import xlwt
-import xlrd
-from xlwt import Workbook
+import pandas as pd
+from openpyxl.styles import PatternFill
 from docx import Document
-import math
 
 from src.address import Address
-
 
 class MsOffice:
     def __init__(self):
         self.record_per_sheet = 64_000
 
-    def export_to_MS_word(self, address_list, file_name):
+    def export_to_MS_word(self, address_list: list, file_name: str):
         document = Document()
-        no_of_address = len(address_list)
-        number_of_rows = math.ceil(no_of_address / 3)
-        table = document.add_table(rows=number_of_rows, cols=3)
+        table = document.add_table(rows=len(address_list), cols=3)
         table.style = 'Table Grid'
         for i, address in enumerate(address_list):
-            row = i % number_of_rows
-            col = math.floor(i / number_of_rows)
-            print("Updating : %s : %s" % (str(i), address.address))
-            cell = table.cell(row, col)
+            row = table.rows[i // 3]  # Divide into 3 columns
+            cell = row.cells[i % 3]
             cell.text = address.address
         document.save(file_name)
 
-    def export_to_MS_Excel(self, address_list, file_name):
-        wb = Workbook()
-        style_warn = xlwt.easyxf("pattern: pattern solid, fore_colour red;")
-        style_alert = xlwt.easyxf("pattern: pattern solid, fore_colour yellow;")
-        style_duplicate = xlwt.easyxf("pattern: pattern solid, fore_colour brown;")
-        style_repeat = xlwt.easyxf("pattern: pattern solid, fore_colour gray25;")
-        row_number = -1
-        while row_number < len(address_list):
-            row_number = row_number + 1
-            if row_number == 0 or row_number % self.record_per_sheet == 0:
-                headers_list = ["ADDRESS ORIGINAL","ADDRESS UPDATED","STATE", "DISTRICT", "BLOCK", "PIN", "PHONE", "RE_ORDER", "NAME","DISTRICT_FROM_ADDRESS","STATE_FROM_ADDRESS"
-                    ,"DISTRICT_MATCH_COUNT","DIST_MATCHES_PIN_AND_ADDR","STATE_MATCHES_PIN_AND_ADDR","BOOK NAME","BOOK LANG","REPEAT ORDER"]
-                wb.add_sheet("Sheet " + str(math.ceil(row_number/self.record_per_sheet)))
-                sheet = wb.get_sheet("Sheet " + str(math.ceil(row_number / self.record_per_sheet)))
-                self.add_headers_to_sheet(sheet, headers_list)
-                continue
-            address = address_list[row_number - 1]
-            row_index = (row_number % self.record_per_sheet)
-            try:
+    def export_to_MS_Excel(self, address_list: list, file_name: str):
+        # Prepare data for DataFrame
+        data = []
+        for address in address_list:
+            data.append([
+                address.address_old, address.address, address.state, address.district,
+                address.block, address.pin, address.phone, "YES" if address.is_reorder else "NO",
+                address.name, address.district_from_address, address.state_from_address,
+                address.occ_count, address.dist_matches_pin_and_addr, address.state_matches_pin_and_addr,
+                address.book_name, address.book_lang, "YES" if address.is_repeat else "NO"
+            ])
+        
+        # Create DataFrame for easier handling
+        columns = [
+            "ADDRESS ORIGINAL", "ADDRESS UPDATED", "STATE", "DISTRICT", "BLOCK", "PIN", "PHONE", "RE_ORDER",
+            "NAME", "DISTRICT_FROM_ADDRESS", "STATE_FROM_ADDRESS", "DISTRICT_MATCH_COUNT",
+            "DIST_MATCHES_PIN_AND_ADDR", "STATE_MATCHES_PIN_AND_ADDR", "BOOK NAME", "BOOK LANG", "REPEAT ORDER"
+        ]
+        
+        df = pd.DataFrame(data, columns=columns)
+
+        # Write to Excel with conditional formatting
+        with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name="Addresses")
+            workbook = writer.book
+            worksheet = workbook["Addresses"]
+
+            # Defining styles for the conditional formatting
+            style_warn = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")  # Red
+            style_alert = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")  # Yellow
+            style_duplicate = PatternFill(start_color="A52A2A", end_color="A52A2A", fill_type="solid")  # Brown
+            style_repeat = PatternFill(start_color="808080", end_color="808080", fill_type="solid")  # Gray
+
+            # Apply color formatting based on conditions
+            for row_idx, address in enumerate(address_list, start=2):  # start=2 to skip header row
+                row = worksheet[row_idx]
+
                 if address.is_repeat:
-                    sheet.write(row_index, 0, address.address_old, style_repeat)
-                    sheet.write(row_index, 1, address.address, style_repeat)
-                    sheet.write(row_index, 2, address.state, style_repeat)
-                    sheet.write(row_index, 3, address.district, style_repeat)
-                    sheet.write(row_index, 4, address.block, style_repeat)
-                    sheet.write(row_index, 5, address.pin, style_repeat)
-                    sheet.write(row_index, 6, address.phone, style_repeat)
-                    sheet.write(row_index, 7, "NO", style_repeat)
-                    sheet.write(row_index, 8, address.name, style_repeat)
-                    sheet.write(row_index, 9, address.district_from_address, style_repeat)
-                    sheet.write(row_index, 10, address.state_from_address, style_repeat)
-                    sheet.write(row_index, 11, address.occ_count, style_repeat)
-                    sheet.write(row_index, 12, address.dist_matches_pin_and_addr, style_repeat)
-                    sheet.write(row_index, 13, address.state_matches_pin_and_addr, style_repeat)
-                    sheet.write(row_index, 14, address.book_name, style_repeat)
-                    sheet.write(row_index, 15, address.book_lang, style_repeat)
-                    sheet.write(row_index, 16, "YES", style_repeat)
-                    continue
+                    # Apply "repeat" color
+                    for col_idx in range(len(row)):
+                        row[col_idx].fill = style_repeat
 
-                if address.is_reorder:
-                    sheet.write(row_index, 0, address.address_old, style_duplicate)
-                    sheet.write(row_index, 1, address.address, style_duplicate)
-                    sheet.write(row_index, 2, address.state, style_duplicate)
-                    sheet.write(row_index, 3, address.district, style_duplicate)
-                    sheet.write(row_index, 4, address.block, style_duplicate)
-                    sheet.write(row_index, 5, address.pin, style_duplicate)
-                    sheet.write(row_index, 6, address.phone, style_duplicate)
-                    sheet.write(row_index, 7, "YES", style_duplicate)
-                    sheet.write(row_index, 8, address.name, style_duplicate)
-                    sheet.write(row_index, 9, address.district_from_address, style_duplicate)
-                    sheet.write(row_index, 10, address.state_from_address, style_duplicate)
-                    sheet.write(row_index, 11, address.occ_count, style_duplicate)
-                    sheet.write(row_index, 12, address.dist_matches_pin_and_addr, style_duplicate)
-                    sheet.write(row_index, 13, address.state_matches_pin_and_addr, style_duplicate)
-                    sheet.write(row_index, 14, address.book_name, style_duplicate)
-                    sheet.write(row_index, 15, address.book_lang, style_duplicate)
-                    sheet.write(row_index, 16, "NO", style_duplicate)
-                    continue
+                elif address.is_reorder:
+                    # Apply "duplicate" color
+                    for col_idx in range(len(row)):
+                        row[col_idx].fill = style_duplicate
 
-                if address.pin is not None and address.phone is not None:
-                    sheet.write(row_index, 0, address.address_old)
-                    sheet.write(row_index, 1, address.address)
-                    sheet.write(row_index, 2, address.state)
-                    sheet.write(row_index, 3, address.district)
-                    sheet.write(row_index, 4, address.block)
-                    sheet.write(row_index, 5, address.pin)
-                    sheet.write(row_index, 6, address.phone)
-                    sheet.write(row_index, 7, "NO")
-                    sheet.write(row_index, 8, address.name)
-                    sheet.write(row_index, 9, address.district_from_address)
-                    sheet.write(row_index, 10, address.state_from_address)
-                    sheet.write(row_index, 11, address.occ_count)
-                    sheet.write(row_index, 12, address.dist_matches_pin_and_addr)
-                    sheet.write(row_index, 13, address.state_matches_pin_and_addr)
-                    sheet.write(row_index, 14, address.book_name)
-                    sheet.write(row_index, 15, address.book_lang)
-                    sheet.write(row_index, 16, "NO")
+                elif address.pin is not None and address.phone is not None:
+                    # No specific color; regular address
+                    pass
+
                 elif address.phone is not None:
-                    sheet.write(row_index, 0, address.address_old, style_alert)
-                    sheet.write(row_index, 1, address.address, style_alert)
-                    sheet.write(row_index, 2, address.state, style_alert)
-                    sheet.write(row_index, 3, address.district, style_alert)
-                    sheet.write(row_index, 4, address.block, style_alert)
-                    sheet.write(row_index, 5, address.pin, style_alert)
-                    sheet.write(row_index, 6, address.phone, style_alert)
-                    sheet.write(row_index, 7, "NO", style_alert)
-                    sheet.write(row_index, 8, address.name,style_alert)
-                    sheet.write(row_index, 9, address.district_from_address, style_alert)
-                    sheet.write(row_index, 10, address.state_from_address, style_alert)
-                    sheet.write(row_index, 11, address.occ_count, style_alert)
-                    sheet.write(row_index, 12, address.dist_matches_pin_and_addr,style_alert)
-                    sheet.write(row_index, 13, address.state_matches_pin_and_addr,style_alert)
-                    sheet.write(row_index, 14, address.book_name, style_alert)
-                    sheet.write(row_index, 15, address.book_lang, style_alert)
-                    sheet.write(row_index, 16, "NO", style_alert)
+                    # Apply "alert" color
+                    for col_idx in range(len(row)):
+                        row[col_idx].fill = style_alert
+
                 else:
-                    sheet.write(row_index, 0, address.address_old, style_warn)
-                    sheet.write(row_index, 1, address.address, style_warn)
-                    sheet.write(row_index, 2, address.state, style_warn)
-                    sheet.write(row_index, 3, address.district, style_warn)
-                    sheet.write(row_index, 4, address.block, style_warn)
-                    sheet.write(row_index, 5, address.pin, style_warn)
-                    sheet.write(row_index, 6, address.phone, style_warn)
-                    sheet.write(row_index, 7, "NO", style_warn)
-                    sheet.write(row_index, 8, address.name, style_warn)
-                    sheet.write(row_index, 9, address.district_from_address, style_warn)
-                    sheet.write(row_index, 10, address.state_from_address, style_warn)
-                    sheet.write(row_index, 11, address.occ_count, style_warn)
-                    sheet.write(row_index, 12, address.dist_matches_pin_and_addr,style_warn)
-                    sheet.write(row_index, 13, address.state_matches_pin_and_addr, style_warn)
-                    sheet.write(row_index, 14, address.book_name, style_warn)
-                    sheet.write(row_index, 15, address.book_lang, style_warn)
-                    sheet.write(row_index, 16, "NO", style_warn)
-            except:
-                address.print_attributes()
-        wb.save(file_name)
+                    # Apply "warn" color
+                    for col_idx in range(len(row)):
+                        row[col_idx].fill = style_warn
 
-    def add_headers_to_sheet(self, worksheet, headers_list):
-        style_bold_black_color = xlwt.easyxf("align:wrap on; font: bold on, color-index black")
-        for i, header_name in enumerate(headers_list):
-            worksheet.write(0, i, header_name, style_bold_black_color)
+            # Optional: Set other formatting, like column widths
+            for col in worksheet.columns:
+                max_length = 0
+                column = col[0].column_letter  # Get the column name
+                for cell in col:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(cell.value)
+                    except:
+                        pass
+                adjusted_width = (max_length + 2)
+                worksheet.column_dimensions[column].width = adjusted_width
 
-    def update_sheet_cell(self, sheet, row, col, data, style):
-        sheet.write(row, col, data, style)
-        return
+    def import_from_Excel_sheet(self, file_name: str):
+        # Read the Excel file into a DataFrame
+        df = pd.read_excel(file_name)
 
-    def import_from_Excel_sheet(self, file_name):
-        wb = xlrd.open_workbook(file_name)
-        sheets = wb.sheet_names()
+        # Convert DataFrame rows into Address objects
         address_list = []
-        for i in sheets:
-            sheet = wb.sheet_by_name(str(i))
-            rows = sheet.nrows
-            for row_index in range(1, rows):
-                address_text = sheet.cell_value(row_index, 0)
-                state = sheet.cell_value(row_index, 1)
-                if len(state) == 0:
-                    state = None
-                district = sheet.cell_value(row_index, 2)
-                if len(district) == 0:
-                    district = None
-                block = sheet.cell_value(row_index, 3)
-                if len(block) == 0:
-                    block = None
-                pin = sheet.cell_value(row_index, 4)
-                if len(pin) == 0:
-                    pin = None
-                phone = sheet.cell_value(row_index, 5)
-                if len(phone) == 0:
-                    phone = None
-                re_order_text = sheet.cell_value(row_index, 6)
-                re_order = None
-                if re_order_text == "NO":
-                    re_order = False
-                elif re_order_text == "YES":
-                    re_order = True
-                name = sheet.cell_value(row_index, 7)
-                dfa = sheet.cell_value(row_index, 8)
-                sfa = sheet.cell_value(row_index, 9)
-                oc = sheet.cell_value(row_index, 10)
-                dmpaa = sheet.cell_value(row_index,11)
-                smpaa = sheet.cell_value(row_index,12)
-                address_obj = Address(address_text, state, district, block, pin, phone, re_order, name, sfa, dfa, oc,
-                                      dmpaa, smpaa)
-                address_list.append(address_obj)
+        for _, row in df.iterrows():
+            address = Address(
+                address_old=row["ADDRESS ORIGINAL"],
+                address=row["ADDRESS UPDATED"],
+                state=row["STATE"] if pd.notna(row["STATE"]) else None,
+                district=row["DISTRICT"] if pd.notna(row["DISTRICT"]) else None,
+                block=row["BLOCK"] if pd.notna(row["BLOCK"]) else None,
+                pin=row["PIN"] if pd.notna(row["PIN"]) else None,
+                phone=row["PHONE"] if pd.notna(row["PHONE"]) else None,
+                is_reorder=True if row["RE_ORDER"] == "YES" else False,
+                name=row["NAME"],
+                district_from_address=row["DISTRICT_FROM_ADDRESS"] if pd.notna(row["DISTRICT_FROM_ADDRESS"]) else None,
+                state_from_address=row["STATE_FROM_ADDRESS"] if pd.notna(row["STATE_FROM_ADDRESS"]) else None,
+                occ_count=row["DISTRICT_MATCH_COUNT"],
+                dist_matches_pin_and_addr=row["DIST_MATCHES_PIN_AND_ADDR"],
+                state_matches_pin_and_addr=row["STATE_MATCHES_PIN_AND_ADDR"],
+                book_name=row["BOOK NAME"],
+                book_lang=row["BOOK LANG"],
+                is_repeat=True if row["REPEAT ORDER"] == "YES" else False,
+            )
+            address_list.append(address)
         return address_list

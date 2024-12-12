@@ -52,6 +52,14 @@ class PhoneNumber:
         text = self.utility.text_cleaner(text)
         return text
 
+    def is_valid_phone_number_or_valid_pincode(self, phone):
+        try:
+            if len(str(int(phone))) == 10 or len(phone) == 6:
+                return True
+        except:
+            pass 
+        return False
+
     def pad_phone_number(self, text, pad_word):
         space = " "
         self.collapse_phone_number(text)
@@ -158,6 +166,15 @@ class PhoneNumber:
             for match in set(regex_14_matches):
                 regex_14_replacer = space + pad_word + match.replace("_", "") + pad_word + space
                 text = text.replace(match, regex_14_replacer)
+
+        # check if the phone number and pincode is valid
+        # NOTE: we check for both, as pincode is expected to be already padded here.  
+        pattern = r'\*(\d+)\*'
+        matches = re.findall(pattern, text)
+        for phone in matches:
+            if not self.is_valid_phone_number_or_valid_pincode(phone):
+                text += " .....InvalidNumberOrPin"
+
         return text
 
     def mobile_number_text_remover(self, text):

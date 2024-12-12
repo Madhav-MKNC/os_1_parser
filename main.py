@@ -150,7 +150,7 @@ def main():
         file_text = utils.read_input_file(fname)
         address_list = process_addresses(file_text)
 
-        output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xls")
+        output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xlsx")
         ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
 
     elif flag in ['-n', '-name', '--n', '--name']:
@@ -163,7 +163,7 @@ def main():
         file_text = utils.read_input_file(fname)
         address_list = process_addresses(file_text, flag='-m')
 
-        output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xls")
+        output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xlsx")
         ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
 
     else:
