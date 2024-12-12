@@ -30,39 +30,43 @@ book_mapper = BookMapper()
 lang_mapper = LanguageMapper()
 
 
-def get_address_list(chat_log: str) -> list:
-    # NOTE: notes.md note 01
-    # Remove the first line from the text
-    newline_index = chat_log.find('\n')
-    print(f"{BLUE}*** Removing first line from the input file ***{RESET}")
-    print(f"*** First line: [{YELLOW}{chat_log[0:newline_index]}{RESET}]")
-    if newline_index != -1:
-        chat_log = chat_log[newline_index + 1:]
-
-    # I dont am/pm wale format me "\u202f" kahan se aajata hai (eg: "10:18\u202fam" instead of "10:18 am")
-    chat_log = chat_log.replace('\u202f', ' ')
-
-    pattern = r"(?i)(\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2}(?: (?:am|pm))? -)"
-    split_log = re.split(pattern, chat_log)
-    print(f"{GREEN}*** len(split_log): [{len(split_log)}]{RESET}")
-    print(f"*** Splitted input: {YELLOW}{str(split_log)[0:100]}..., ...]{RESET}")
+def get_address_list(chat_log: str, flag='-f') -> list:
+    if flag == '-m':
+        string_address_list = [i.strip() for i in chat_log.split('\n') if i.strip()]
     
-    # for i in split_log:
-    #     print(f"{RED}=============================================={RESET}")
-    #     print(f"{BLUE}log = {i}{RESET}")
-    #     print(f"{YELLOW}=============================================={RESET}\n")
+    else:
+        # NOTE: notes.md note 01
+        # Remove the first line from the text
+        newline_index = chat_log.find('\n')
+        print(f"{BLUE}*** Removing first line from the input file ***{RESET}")
+        print(f"*** First line: [{YELLOW}{chat_log[0:newline_index]}{RESET}]")
+        if newline_index != -1:
+            chat_log = chat_log[newline_index + 1:]
+
+        # I dont am/pm wale format me "\u202f" kahan se aajata hai (eg: "10:18\u202fam" instead of "10:18 am")
+        chat_log = chat_log.replace('\u202f', ' ')
+
+        pattern = r"(?i)(\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2}(?: (?:am|pm))? -)"
+        split_log = re.split(pattern, chat_log)
+        print(f"{GREEN}*** len(split_log): [{len(split_log)}]{RESET}")
+        print(f"*** Splitted input: {YELLOW}{str(split_log)[0:100]}..., ...]{RESET}")
+        
+        # for i in split_log:
+        #     print(f"{RED}=============================================={RESET}")
+        #     print(f"{BLUE}log = {i}{RESET}")
+        #     print(f"{YELLOW}=============================================={RESET}\n")
     
-    # NOTE: notes.md note 02
-    # relevant log format: DD/MM/YY, HH:MM - CONTACT: MESSAGE
-    # split around "DD/MM/YY HH:MM (AM/PM)" -> ['', 'date, time', 'contact: message', ...] 
-    # so only append alternate logs skipping '' and logs that excludes ':' (not a relevant message log)
-    # rest of the part after first ":" is the message.
-    string_address_list = []
-    for i in range(0, len(split_log), 2):
-        log = split_log[i]
-        if log and ":" in log:
-            message = log[log.find(':') + 1:].strip()
-            string_address_list.append(message.lower())
+        # NOTE: notes.md note 02
+        # relevant log format: DD/MM/YY, HH:MM - CONTACT: MESSAGE
+        # split around "DD/MM/YY HH:MM (AM/PM)" -> ['', 'date, time', 'contact: message', ...] 
+        # so only append alternate logs skipping '' and logs that excludes ':' (not a relevant message log)
+        # rest of the part after first ":" is the message.
+        string_address_list = []
+        for i in range(0, len(split_log), 2):
+            log = split_log[i]
+            if log and ":" in log:
+                message = log[log.find(':') + 1:].strip()
+                string_address_list.append(message.lower())
 
     address_list = []
     for address_text in string_address_list:
@@ -82,11 +86,11 @@ def get_address_list(chat_log: str) -> list:
 
     return address_list
 
-def process_addresses(file_text):
+def process_addresses(file_text, flag='-f'):
     if file_text is None or not len(file_text):
         return []
 
-    address_list = get_address_list(file_text)
+    address_list = get_address_list(file_text, flag=flag)
     
     address_obj_list = []
     # phone_numbers = []
@@ -154,6 +158,13 @@ def main():
         for address in address_list:
             utils.update_address_name(address)
         ms_office.export_to_MS_Excel(address_list, str(fname.split(".")[0] + "_name.xls"))
+    
+    elif flag in ['-m', '-modified', '-modify', '--m', '--modified', '--modify', '-mod', '--mod']:
+        file_text = utils.read_input_file(fname)
+        address_list = process_addresses(file_text, flag='-m')
+
+        output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xls")
+        ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
 
     else:
         print(f"{RED}[!] Invalid argument{RESET}")
