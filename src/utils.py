@@ -38,7 +38,7 @@ class Utils:
         text = text.replace(";", " ")
         text = text.replace("|", " ")
         # - cleanup
-        text = text.replace("-", " ")
+        text = text.replace(" - ", " ")
         # +91
         text = text.replace("+91", " ")
         text = text.replace("=", " ")
@@ -91,6 +91,8 @@ class Utils:
         text = text.replace("(p)", " post ")
         text = text.replace("pincode", " ")
         text = text.replace("mobile", " ")
+        text = text.replace(" mo no ", " ").replace(" mo no.", " ").replace(" mo num ", " ")
+        text = text.replace(" mob no ", " ").replace(" mob no.", " ").replace(" mob ", " ").replace(" mob.", " ")
         text = text.replace("phone", " ").replace(" ph ", " ")
         text = text.replace(" pin,", " ").replace(" pin.", " ").replace(" pin:", " ").replace(" pin-", " ").replace(" pin ", " ")
         text = text.strip()
@@ -102,7 +104,7 @@ class Utils:
         text = self.replace_white_spaces_single_space(text)
         text = self.comma_space_remover(text)
         text = self.empty_brackets_remover(text)
-        text = self.clean_slash_remover(text)
+        # text = self.clean_slash_remover(text)
         return text.strip()
 
     def comma_space_remover(self, text):
