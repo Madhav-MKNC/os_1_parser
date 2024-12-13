@@ -27,14 +27,15 @@ class MsOffice:
                 address.block, address.pin, address.phone, "YES" if address.is_reorder else "NO",
                 address.name, address.district_from_address, address.state_from_address,
                 address.occ_count, address.dist_matches_pin_and_addr, address.state_matches_pin_and_addr,
-                address.book_name, address.book_lang, "YES" if address.is_repeat else "NO", address.email
+                address.book_name, address.book_lang, "YES" if address.is_repeat else "NO", address.email, address.faulty
             ])
         
         # Create DataFrame for easier handling
         columns = [
             "ADDRESS ORIGINAL", "ADDRESS UPDATED", "STATE", "DISTRICT", "BLOCK", "PIN", "PHONE", "RE_ORDER",
             "NAME", "DISTRICT_FROM_ADDRESS", "STATE_FROM_ADDRESS", "DISTRICT_MATCH_COUNT",
-            "DIST_MATCHES_PIN_AND_ADDR", "STATE_MATCHES_PIN_AND_ADDR", "BOOK NAME", "BOOK LANG", "REPEAT ORDER", "EMAIL"
+            "DIST_MATCHES_PIN_AND_ADDR", "STATE_MATCHES_PIN_AND_ADDR", "BOOK NAME", "BOOK LANG", "REPEAT ORDER",
+            "EMAIL", "FAULTY"
         ]
         
         df = pd.DataFrame(data, columns=columns)
@@ -54,8 +55,13 @@ class MsOffice:
             # Apply color formatting based on conditions
             for row_idx, address in enumerate(address_list, start=2):  # start=2 to skip header row
                 row = worksheet[row_idx]
+                
+                if address.faulty:
+                    # faulty data
+                    for col_idx in range(len(row)):
+                        row[col_idx].fill = style_warn
 
-                if address.is_repeat:
+                elif address.is_repeat:
                     # Apply "repeat" color
                     for col_idx in range(len(row)):
                         row[col_idx].fill = style_repeat
@@ -117,7 +123,8 @@ class MsOffice:
                 book_name=row["BOOK NAME"],
                 book_lang=row["BOOK LANG"],
                 is_repeat=True if row["REPEAT ORDER"] == "YES" else False,
-                email=row["EMAIL"]
+                email=row["EMAIL"],
+                faulty=row["FAULTY"]
             )
             address_list.append(address)
         return address_list
