@@ -27,14 +27,14 @@ class MsOffice:
                 address.block, address.pin, address.phone, "YES" if address.is_reorder else "NO",
                 address.name, address.district_from_address, address.state_from_address,
                 address.occ_count, address.dist_matches_pin_and_addr, address.state_matches_pin_and_addr,
-                address.book_name, address.book_lang, "YES" if address.is_repeat else "NO"
+                address.book_name, address.book_lang, "YES" if address.is_repeat else "NO", address.email
             ])
         
         # Create DataFrame for easier handling
         columns = [
             "ADDRESS ORIGINAL", "ADDRESS UPDATED", "STATE", "DISTRICT", "BLOCK", "PIN", "PHONE", "RE_ORDER",
             "NAME", "DISTRICT_FROM_ADDRESS", "STATE_FROM_ADDRESS", "DISTRICT_MATCH_COUNT",
-            "DIST_MATCHES_PIN_AND_ADDR", "STATE_MATCHES_PIN_AND_ADDR", "BOOK NAME", "BOOK LANG", "REPEAT ORDER"
+            "DIST_MATCHES_PIN_AND_ADDR", "STATE_MATCHES_PIN_AND_ADDR", "BOOK NAME", "BOOK LANG", "REPEAT ORDER", "EMAIL"
         ]
         
         df = pd.DataFrame(data, columns=columns)
@@ -117,6 +117,7 @@ class MsOffice:
                 book_name=row["BOOK NAME"],
                 book_lang=row["BOOK LANG"],
                 is_repeat=True if row["REPEAT ORDER"] == "YES" else False,
+                email=row["EMAIL"]
             )
             address_list.append(address)
         return address_list

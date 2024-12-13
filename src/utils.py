@@ -26,12 +26,9 @@ class Utils:
         text = self.phrases_cleaner(text)
 
         text = text.replace("\n", ",")
-        # email cleanup
-        text = re.sub(r"([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)", "", text)
 
         text = re.sub(r"[,]+", ",", text)
-        # dot clean up
-        text = text.replace(".", " ")
+
         # Colon cleanup
         text = text.replace(":", " ")
         # semi colon cleanup
@@ -76,10 +73,12 @@ class Utils:
             for match in hash_matches:
                 replacer = match.replace("#", "")
                 text = text.replace(match, replacer)
+
         text = self.text_cleaner(text)
         return text
 
     def phrases_cleaner(self, text):
+        text = re.sub(r"https://wa\.me/\S+", " ", text) 
         text = text.replace("plz comment madi in this format", "")
         text = text.replace("email", "").replace("e mail", "").replace("e-mail", "").replace("mail id", "")
         text = text.replace(" name", "")

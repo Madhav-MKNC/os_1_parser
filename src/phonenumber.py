@@ -168,7 +168,7 @@ class PhoneNumber:
                 text = text.replace(match, regex_14_replacer)
 
         # check if the phone number and pincode is valid
-        # NOTE: we check for both, as pincode is expected to be already padded here.  
+        # NOTE: we check for both, as pincode is expected to be already padded here. NOTE(NEW): Not anymore
         pattern = r'\*(\d+)\*'
         matches = re.findall(pattern, text)
         for phone in matches:

@@ -5,6 +5,7 @@ from pathlib import Path
 
 from src.address import Address
 from src.utils import Utils
+from src.email import Email
 from src.pincode import PinCode
 from src.phonenumber import PhoneNumber
 from src.msoffice import MsOffice
@@ -19,6 +20,7 @@ from src.colors import *
 
 output_dir = "output_dir"
 
+email = Email()
 pincode = PinCode()
 phone_number_lookup = PhoneNumberLookup()
 phone_number = PhoneNumber(phone_number_lookup)
@@ -70,10 +72,8 @@ def get_address_list(chat_log: str, flag='-f') -> list:
 
     address_list = []
     for address_text in string_address_list:
-        address_text = utils.text_cleaner(address_text)
-        address_text = utils.clean_stopping_words_and_phrases(address_text)
         if utils.valid_text(address_text):
-            address_obj = Address(address_text.lower(), None, None, None, None, None)
+            address_obj = Address(address_text.lower().strip(), None, None, None, None, None)
             address_list.append(address_obj)
     
     print(f"{GREEN}*** Total addresses found: [{len(address_list)}]{RESET}")
@@ -98,22 +98,20 @@ def process_addresses(file_text, flag='-f'):
     print(f"{BLUE}*** Processing Addresses ***{RESET}")
     for itr, address_obj in enumerate(address_list):
         try:
+            email.extract_and_update_email(address_obj)
             address_string = address_obj.address
-            address_string = pincode.pin_code_extender(address_string)
+            # address_string = pincode.pin_code_extender(address_string)
+            address_string = utils.text_cleaner(address_string)
             address_string = utils.clean_stopping_words_and_phrases(address_string)
-            address_string = pincode.pad_pin_code(address_string, "*")
             address_string = phone_number.collapse_phone_number(address_string)
             address_string = phone_number.pad_phone_number(address_string, "*")
+            address_string = pincode.pad_pin_code(address_string, "*")
             address_string = phone_number.mobile_number_text_remover(address_string)
             address_string = pincode.pin_number_text_remover(address_string)
             address_obj.address = address_string
             pincode.update_pin_number(address_obj)
             phone_number.update_phone_number(address_obj)
             address_obj.address = utils.text_cleaner(address_obj.address)
-            
-            # # phone number
-            # if address_obj.phone:
-            #     phone_numbers.append(address_obj.phone)
 
             #Attribute from address parsing
             state_add, dist_add, occ_count = utils.get_data_from_address(address_obj.address)

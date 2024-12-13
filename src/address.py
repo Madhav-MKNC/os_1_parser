@@ -2,7 +2,7 @@ class Address:
     def __init__(self, address, state, district, block, pin, phone, is_reorder=False, name=None,
                  state_from_address=None,
                  district_from_address=None, count=None, dist_matches_pin_and_addr=None,
-                 state_matches_pin_and_addr=None, book_name=None, book_lang=None, is_repeat=None):
+                 state_matches_pin_and_addr=None, book_name=None, book_lang=None, is_repeat=None, email=None):
         self.address = address
         self.address_old = address
         self.state = state
@@ -20,6 +20,7 @@ class Address:
         self.book_name = book_name
         self.book_lang = book_lang
         self.is_repeat = is_repeat
+        self.email = email
 
     def __lt__(self, other):
         val1, val2 = self.__evaluate(other)
@@ -103,3 +104,6 @@ class Address:
 
     def set_is_repeat(self, value):
         self.is_repeat = value
+    
+    def set_email(self, value):
+        self.email = value
