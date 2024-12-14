@@ -52,9 +52,9 @@ class PhoneNumber:
         text = self.utility.text_cleaner(text)
         return text
 
-    def is_valid_phone_number_or_valid_pincode(self, phone):
+    def is_valid_phone_number_or_valid_pin(self, inp):
         try:
-            if len(str(int(phone))) == 10 or len(phone) == 6:
+            if len(str(int(inp))) == 10 or len(inp) == 6:
                 return True
         except:
             pass 
@@ -200,7 +200,7 @@ class PhoneNumber:
         pattern = r'\*(\d+)\*'
         matches = re.findall(pattern, text)
         for phone in matches:
-            if not self.is_valid_phone_number_or_valid_pincode(phone):
+            if not self.is_valid_phone_number_or_valid_pin(phone):
                 address_obj.faulty = "FAULTY"
         return text
 

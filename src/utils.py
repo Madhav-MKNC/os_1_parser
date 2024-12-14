@@ -107,6 +107,7 @@ class Utils:
         return text.strip()
     
     def last_text_cleaner(self, text):
+        text = self.text_cleaner(text)
         text = re.sub(r'\s\d{1,2}\.\s', ' ', text) # remove " 2. ", " 24. " serial number like texts
         if text.strip().startswith('1.'): text = text.strip()[2:] # remove " 1. "
 

@@ -103,14 +103,14 @@ def process_addresses(file_text, flag='-f'):
             # address_string = pincode.pin_code_extender(address_string)
             address_string = utils.text_cleaner(address_string)
             address_string = utils.clean_stopping_words_and_phrases(address_string)
+            address_string = phone_number.collapse_phone_number(address_string)
             address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
-            address_string = pincode.pad_pin_code(address_string, "*")
+            address_string = pincode.pad_pin_code(address_string, "*", address_obj)
             address_string = phone_number.mobile_number_text_remover(address_string)
             address_string = pincode.pin_number_text_remover(address_string)
             address_obj.address = address_string
             pincode.update_pin_number(address_obj)
             phone_number.update_phone_number(address_obj)
-            address_obj.address = utils.text_cleaner(address_obj.address)
             address_obj.address = utils.last_text_cleaner(address_obj.address)
 
             #Attribute from address parsing
