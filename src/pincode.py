@@ -57,19 +57,6 @@ class PinCode:
         pin_regex_7 = r"[ ]\d{4}[ ]\d{2}[ ]"  # | 3343 33 |
         pin_regex_8 = r"[^0-9*]\d{6}[ ]"  # |n3343 33 |
         pin_regex_9 = r"[ ]\d{6}[^0-9*]"  # |334333n|
-        
-        
-        pin_regex_0 = r"^\d{6}"  # Match a 6-digit pin code at the start of the string
-        pin_regex_1 = r"[ ]\d{6}$"  # Match a 6-digit pin code preceded by space at the end of the string
-        pin_regex_2 = r"[ ]\d{6}[ ]"  # Match a 6-digit pin code surrounded by spaces
-        pin_regex_3 = r"[^0-9*]\d{6}[^0-9*]"  # Match a 6-digit pin code surrounded by non-numeric characters
-        pin_regex_4 = r"[ ]\d{4}[ ]\d{2}[ ]"  # Match a 6-digit pin code split by spaces (e.g., "3343 33")
-        pin_regex_5 = r"[^0-9]\d{3}[ ]\d{3}"  # Match a pin code like "334 333"
-        pin_regex_6 = r"[ ]\d{4}[ ]\d{2}$"  # Match a pin code at the end of the string
-        pin_regex_7 = r"[ ]\d{4}[ ]\d{2}[ ]"  # Match a pin code surrounded by spaces
-        pin_regex_8 = r"[^0-9*]\d{6}[ ]"  # Match a pin code surrounded by non-numeric characters
-        pin_regex_9 = r"[ ]\d{6}[^0-9*]"  
-        
 
         pin_regex_0_matches = re.findall(pin_regex_0, text)
         pin_regex_1_matches = re.findall(pin_regex_1, text)
