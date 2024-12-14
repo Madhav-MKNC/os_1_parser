@@ -24,7 +24,7 @@ class MsOffice:
         for address in address_list:
             data.append([
                 address.address_old, address.address, address.state, address.district,
-                address.block, address.pin, address.phone, "YES" if address.is_reorder else "NO",
+                address.block, address.pin, address.country_code, address.phone, "YES" if address.is_reorder else "NO",
                 address.name, address.district_from_address, address.state_from_address,
                 address.occ_count, address.dist_matches_pin_and_addr, address.state_matches_pin_and_addr,
                 address.book_name, address.book_lang, "YES" if address.is_repeat else "NO", address.email, address.faulty
@@ -32,7 +32,7 @@ class MsOffice:
         
         # Create DataFrame for easier handling
         columns = [
-            "ADDRESS ORIGINAL", "ADDRESS UPDATED", "STATE", "DISTRICT", "BLOCK", "PIN", "PHONE", "RE_ORDER",
+            "ADDRESS ORIGINAL", "ADDRESS UPDATED", "STATE", "DISTRICT", "BLOCK", "PIN", "COUNTRY CODE", "PHONE", "RE_ORDER",
             "NAME", "DISTRICT_FROM_ADDRESS", "STATE_FROM_ADDRESS", "DISTRICT_MATCH_COUNT",
             "DIST_MATCHES_PIN_AND_ADDR", "STATE_MATCHES_PIN_AND_ADDR", "BOOK NAME", "BOOK LANG", "REPEAT ORDER",
             "EMAIL", "FAULTY"
@@ -57,6 +57,8 @@ class MsOffice:
             for row_idx, address in enumerate(address_list, start=2):  # start=2 to skip header row
                 row = worksheet[row_idx]
                 
+                if not address.phone: address.faulty = "FAULTY"
+
                 if address.faulty:
                     # faulty data
                     for col_idx in range(len(row)):
@@ -113,6 +115,7 @@ class MsOffice:
                 district=row["DISTRICT"] if pd.notna(row["DISTRICT"]) else None,
                 block=row["BLOCK"] if pd.notna(row["BLOCK"]) else None,
                 pin=row["PIN"] if pd.notna(row["PIN"]) else None,
+                country_code=row["COUNTRY CODE"],
                 phone=row["PHONE"] if pd.notna(row["PHONE"]) else None,
                 is_reorder=True if row["RE_ORDER"] == "YES" else False,
                 name=row["NAME"],
