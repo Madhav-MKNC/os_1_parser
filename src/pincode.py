@@ -45,7 +45,8 @@ class PinCode:
         
 
     def pad_pin_code(self, text_input, pad_word, address_obj):
-        text = text_input
+        text = "REMOVE_ME " + text_input # NOTE: haha, sasta jugaad, adding noise so that pincode in very beginning gets matched too (remove it asap after matching)
+
         space = " "
         pin_regex_0 = r"[<]\d{6}[>]"  # |<334333>|
         pin_regex_1 = r"[ ]\d{6}$"  # | 334333|
@@ -58,6 +59,7 @@ class PinCode:
         pin_regex_8 = r"[^0-9*]\d{6}[ ]"  # |n3343 33 |
         pin_regex_9 = r"[ ]\d{6}[^0-9*]"  # |334333n|
 
+        # pin_start_matches = re.findall(pin_regex_start, text)
         pin_regex_0_matches = re.findall(pin_regex_0, text)
         pin_regex_1_matches = re.findall(pin_regex_1, text)
         pin_regex_2_matches = re.findall(pin_regex_2, text)
@@ -68,7 +70,17 @@ class PinCode:
         pin_regex_7_matches = re.findall(pin_regex_7, text)
         pin_regex_8_matches = re.findall(pin_regex_8, text)
         pin_regex_9_matches = re.findall(pin_regex_9, text)
+        
+        text = text[10:] # NOTE: Removed "REMOVE_ME " haha
 
+        # # Check for pin code at the beginning of the string
+        # pin_regex_start = r"^\d{6}"
+        # if len(pin_start_matches) > 0:
+        #     pin = pin_start_matches[0]
+        #     if not self.is_valid_phone_number_or_valid_pin(pin): address_obj.faulty = "FAULTY"
+        #     padded_match = space + pad_word + pin + pad_word + space
+        #     text = text.replace(pin, padded_match)
+        #     return text
         if len(pin_regex_0_matches) > 0:
             for match in set(pin_regex_0_matches):
                 pin = match[1:-1]
