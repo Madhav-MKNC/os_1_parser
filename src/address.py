@@ -2,7 +2,7 @@ class Address:
     def __init__(self, address, state, district, block, pin, phone, is_reorder=False, name=None,
                  state_from_address=None,
                  district_from_address=None, count=None, dist_matches_pin_and_addr=None,
-                 state_matches_pin_and_addr=None, book_name=None, book_lang=None, is_repeat=None, email=None, faulty=False):
+                 state_matches_pin_and_addr=None, book_name=None, book_lang=None, is_repeat=None, email=None, faulty=None):
         self.address = address
         self.address_old = address
         self.state = state

@@ -60,7 +60,7 @@ class PhoneNumber:
             pass 
         return False
 
-    def pad_phone_number(self, text, pad_word):
+    def pad_phone_number(self, text, pad_word, address_obj):
         space = " "
         self.collapse_phone_number(text)
 
@@ -83,26 +83,34 @@ class PhoneNumber:
         regex_1_matches = re.findall(regex_1, text)
         if len(regex_1_matches) > 0:
             for match in set(regex_1_matches):
-                regex_1_replacer = space + pad_word + match + pad_word + space
+                ph_num = match
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_1_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_1_replacer)
 
         regex_2_matches = re.findall(regex_2, text)
         if len(regex_2_matches) > 0:
             for match in set(regex_2_matches):
-                regex_2_replacer = space + pad_word + match.strip() + pad_word + space
+                ph_num = match.strip()
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_2_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_2_replacer)
 
         regex_3_matches = re.findall(regex_3, text)
         if len(regex_3_matches) > 0:
             for match in set(regex_3_matches):
-                regex_3_replacer = space + pad_word + match.replace(" ", "").strip() + pad_word + space
+                ph_num = match.replace(" ", "").strip()
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_3_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_3_replacer)
 
         regex_4_matches = re.findall(regex_4, text)
         if len(regex_4_matches) > 0:
             for match in set(regex_4_matches):
+                ph_num = match[1:]
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
                 left_outer_char = match[0]
-                regex_4_replacer = left_outer_char + space + pad_word + match[1:] + pad_word + space
+                regex_4_replacer = left_outer_char + space + pad_word + ph_num + pad_word + space
                 regex_4_replacer = regex_4_replacer.replace(" ", "")
                 match = match.replace(" ", "")
                 text = text.replace(match, regex_4_replacer)
@@ -110,61 +118,81 @@ class PhoneNumber:
         regex_5_matches = re.findall(regex_5, text)
         if len(regex_5_matches) > 0:
             for match in set(regex_5_matches):
-                regex_5_replacer = space + pad_word + match.replace("91", "") + pad_word + space
+                ph_num = match.replace("91", "")
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_5_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_5_replacer)
 
         regex_6_matches = re.findall(regex_6, text)
         if len(regex_6_matches) > 0:
             for match in set(regex_6_matches):
-                regex_6_replacer = space + pad_word + match.replace("91-", "") + pad_word + space
+                ph_num = match.replace("91-", "")
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_6_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_6_replacer)
 
         regex_7_matches = re.findall(regex_7, text)
         if len(regex_7_matches) > 0:
             for match in set(regex_7_matches):
-                regex_7_replacer = space + pad_word + match.replace(" ", "") + pad_word + space
+                ph_num = match.replace(" ", "")
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_7_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_7_replacer)
 
         regex_8_matches = re.findall(regex_8, text)
         if len(regex_8_matches) > 0:
             for match in set(regex_8_matches):
-                regex_8_replacer = space + pad_word + match.replace(" ", "") + pad_word + space
+                ph_num = match.replace(" ", "")
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_8_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_8_replacer)
         regex_9_matches = re.findall(regex_9, text)
         if len(regex_9_matches) > 0:
             for match in set(regex_9_matches):
-                regex_9_replacer = space + pad_word + match.replace(" ", "") + pad_word + space
+                ph_num = match.replace(" ", "")
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_9_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_9_replacer)
 
         regex_10_matches = re.findall(regex_10, text)
         if len(regex_10_matches) > 0:
             for match in set(regex_10_matches):
-                regex_10_replacer = space + pad_word + match.replace(" ", "") + pad_word + space
+                ph_num = match.replace(" ", "")
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_10_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_10_replacer)
 
         regex_11_matches = re.findall(regex_11, text)
         if len(regex_11_matches) > 0:
             for match in set(regex_11_matches):
-                regex_11_replacer = space + pad_word + match.replace(" ", "") + pad_word + space
+                ph_num = match.replace(" ", "")
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_11_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_11_replacer)
 
         regex_12_matches = re.findall(regex_12, text)
         if len(regex_12_matches) > 0:
             for match in set(regex_12_matches):
                 if len(match.replace(" ", "")) >= 10:
-                    regex_12_replacer = space + pad_word + match.replace(" ", "") + pad_word + space
+                    ph_num = match.replace(" ", "")
+                    if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                    regex_12_replacer = space + pad_word + ph_num + pad_word + space
                     text = text.replace(match, regex_12_replacer)
 
         regex_13_matches = re.findall(regex_13, text)
         if len(regex_13_matches) > 0:
             for match in set(regex_13_matches):
-                regex_13_replacer = space + pad_word + match.replace(" ", "") + pad_word + space
+                ph_num = match.replace(" ", "")
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_13_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_13_replacer)
 
         regex_14_matches = re.findall(regex_14, text)
         if len(regex_14_matches) > 0:
             for match in set(regex_14_matches):
-                regex_14_replacer = space + pad_word + match.replace("_", "") + pad_word + space
+                ph_num = match.replace("_", "") 
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_14_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_14_replacer)
 
         # check if the phone number and pincode is valid
@@ -173,8 +201,7 @@ class PhoneNumber:
         matches = re.findall(pattern, text)
         for phone in matches:
             if not self.is_valid_phone_number_or_valid_pincode(phone):
-                text += " .....InvalidNumberOrPin"
-
+                address_obj.faulty = "FAULTY"
         return text
 
     def mobile_number_text_remover(self, text):

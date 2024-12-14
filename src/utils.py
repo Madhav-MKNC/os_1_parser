@@ -82,7 +82,7 @@ class Utils:
         text = text.replace("plz comment madi in this format", "")
         text = text.replace("email", "").replace("e mail", "").replace("e-mail", "").replace("mail id", "")
         text = text.replace(" name", "")
-        text = text.replace(".", " ")
+        # text = text.replace(".", " ")
         text = text.replace(" code ", " ").replace(" code.", " ").replace(" code,", " ").replace(" code:", " ").replace(" code-", " ")
         text = text.replace("number", " ")
         text = text.replace(" num", " ").replace("num:", " ").replace("num-", " ")
@@ -105,6 +105,14 @@ class Utils:
         text = self.empty_brackets_remover(text)
         # text = self.clean_slash_remover(text)
         return text.strip()
+    
+    def last_text_cleaner(self, text):
+        text = re.sub(r'\s\d{1,2}\.\s', ' ', text) # remove " 2. ", " 24. " serial number like texts
+        if text.strip().startswith('1.'): text = text.strip()[2:] # remove " 1. "
+
+        text = text.replace(".", " ")
+        text = self.clean_stopping_words_and_phrases(text)
+        return text
 
     def comma_space_remover(self, text):
         # "     ," => ", "
