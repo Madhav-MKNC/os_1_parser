@@ -61,6 +61,7 @@ class PhoneNumber:
         return False
 
     def pad_phone_number(self, text, pad_word, address_obj):
+        old_text = text
         space = " "
         self.collapse_phone_number(text)
 
@@ -199,9 +200,11 @@ class PhoneNumber:
         # NOTE: we check for both, as pincode is expected to be already padded here. NOTE(NEW): Not anymore
         pattern = r'\*(\d+)\*'
         matches = re.findall(pattern, text)
+        if not matches: address_obj.faulty = "FAULTY"
         for phone in matches:
             if not self.is_valid_phone_number_or_valid_pin(phone):
                 address_obj.faulty = "FAULTY"
+        if old_text == text: address_obj.faulty = "FAULTY"
         return text
 
     def mobile_number_text_remover(self, text):

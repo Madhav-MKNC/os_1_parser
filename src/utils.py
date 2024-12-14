@@ -57,12 +57,12 @@ class Utils:
         text = text.replace("&", " and ")
 
         text = text.replace('"', " ")
-        text = text.replace("*", "")
+        text = text.replace("*", " ")
         text = text.replace("((", "(").replace("( ", "(")
         text = text.replace("))", ")").replace(" )", ")")
         text = re.sub(r"/ ", " ", text)
-        text = re.sub(r"%", "", text)
-        text = text.replace("address", "")
+        text = re.sub(r"%", " ", text)
+        text = text.replace("address", " ")
         text = re.sub(r"house no[ .:=\/\-*#~]+", "#", text)
         text = re.sub("house no", "#", text)
 
@@ -71,7 +71,7 @@ class Utils:
         hash_matches = re.findall("#[^0-9]", text)
         if len(hash_matches) > 0:
             for match in hash_matches:
-                replacer = match.replace("#", "")
+                replacer = match.replace("#", " ")
                 text = text.replace(match, replacer)
 
         text = self.text_cleaner(text)
@@ -79,21 +79,24 @@ class Utils:
 
     def phrases_cleaner(self, text):
         text = re.sub(r"https://wa\.me/\S+", " ", text) 
-        text = text.replace("plz comment madi in this format", "")
-        text = text.replace("email", "").replace("e mail", "").replace("e-mail", "").replace("mail id", "")
-        text = text.replace(" name", "")
+        text = text.replace("plz comment madi in this format", " ")
+        text = text.replace("email", " ").replace("e mail", " ").replace("e-mail", " ").replace("mail id", " ")
+        text = text.replace(" name", " ")
         # text = text.replace(".", " ")
-        text = text.replace(" code ", " ").replace(" code.", " ").replace(" code,", " ").replace(" code:", " ").replace(" code-", " ")
-        text = text.replace("number", " ")
-        text = text.replace(" num", " ").replace("num:", " ").replace("num-", " ")
-        text = text.replace("no.", " ").replace("no-", " ").replace("no:", " ")
+
+        # text = text.replace(" code ", " ").replace(" code.", " ").replace(" code,", " ").replace(" code:", " ").replace(" code-", " ")
+        # text = text.replace("number", " ")
+        # text = text.replace(" num", " ").replace("num:", " ").replace("num-", " ")
+        # text = text.replace("mobile", " ")
+        # text = text.replace(" mo no ", " ").replace(" mo no.", " ").replace(" mo num ", " ")
+        # text = text.replace(" mob no ", " ").replace(" mob no.", " ").replace(" mob ", " ").replace(" mob.", " ")
+        # text = text.replace("pincode", " ")
+        # text = text.replace("phone", " ").replace(" ph ", " ")
+        # text = text.replace(" pin,", " ").replace(" pin.", " ").replace(" pin:", " ").replace(" pin-", " ").replace(" pin ", " ")
+ 
+        # text = text.replace("no.", " ").replace("no-", " ").replace("no:", " ")
+
         text = text.replace("(p)", " post ")
-        text = text.replace("pincode", " ")
-        text = text.replace("mobile", " ")
-        text = text.replace(" mo no ", " ").replace(" mo no.", " ").replace(" mo num ", " ")
-        text = text.replace(" mob no ", " ").replace(" mob no.", " ").replace(" mob ", " ").replace(" mob.", " ")
-        text = text.replace("phone", " ").replace(" ph ", " ")
-        text = text.replace(" pin,", " ").replace(" pin.", " ").replace(" pin:", " ").replace(" pin-", " ").replace(" pin ", " ")
         text = text.strip()
         if text.startswith("-"): text = text[1:]
         return text
@@ -112,6 +115,17 @@ class Utils:
         if text.strip().startswith('1.'): text = text.strip()[2:] # remove " 1. "
 
         text = text.replace(".", " ")
+
+        text = text.replace(" code ", " ").replace(" code.", " ").replace(" code,", " ").replace(" code:", " ").replace(" code-", " ")
+        text = text.replace("number", " ")
+        text = text.replace(" num", " ").replace("num:", " ").replace("num-", " ")
+        text = text.replace("mobile", " ")
+        text = text.replace(" mo no ", " ").replace(" mo no.", " ").replace(" mo num ", " ")
+        text = text.replace(" mob no ", " ").replace(" mob no.", " ").replace(" mob ", " ").replace(" mob.", " ")
+        text = text.replace("pincode", " ")
+        text = text.replace("phone", " ").replace(" ph ", " ")
+        text = text.replace(" pin,", " ").replace(" pin.", " ").replace(" pin:", " ").replace(" pin-", " ").replace(" pin ", " ")
+ 
         text = self.clean_stopping_words_and_phrases(text)
         return text
 
@@ -121,7 +135,7 @@ class Utils:
         # ",,,,,,,,,"
         text = re.sub(',+', ", ", text)
         # leading commas
-        text = re.sub(r"^,+", "", text)
+        text = re.sub(r"^,+", " ", text)
         # ",,,,,,,,,         "
         text = re.sub(r",+[ ]+", ", ", text)
         # ",,,,,,,      ,,,,,,,,"
@@ -137,12 +151,12 @@ class Utils:
         return text
 
     def clean_slash_remover(self, text):
-        text = re.sub(r"/[^a-zA-Z0-9]]", "", text)
+        text = re.sub(r"/[^a-zA-Z0-9]]", " ", text)
         return text
 
     def empty_brackets_remover(self, text):
-        text = re.sub(r"\(+\)+", "", text)
-        text = re.sub(r"\(+[ ]+\)+", "", text)
+        text = re.sub(r"\(+\)+", " ", text)
+        text = re.sub(r"\(+[ ]+\)+", " ", text)
         return text
 
     def replace_white_spaces_single_space(self, text):

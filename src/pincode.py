@@ -169,6 +169,11 @@ class PinCode:
     #     for phone in matches:
     #         if not self.is_valid_phone_number_or_valid_pin(phone):
     #             address_obj.faulty = "FAULTY"
+    
+        # if nothing is padded then faulty
+        pattern = r'\*(\d+)\*'
+        matches = re.findall(pattern, text)
+        if not matches: address_obj.faulty = "FAULTY"
         return text
 
     def pin_number_text_remover(self, text):

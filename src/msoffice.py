@@ -47,6 +47,7 @@ class MsOffice:
             worksheet = workbook["Addresses"]
 
             # Defining styles for the conditional formatting
+            style_faulty = PatternFill(start_color="FFC0CB", end_color="FFC0CB", fill_type="solid")  # Pink
             style_warn = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")  # Red
             style_alert = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")  # Yellow
             style_duplicate = PatternFill(start_color="A52A2A", end_color="A52A2A", fill_type="solid")  # Brown
@@ -59,7 +60,7 @@ class MsOffice:
                 if address.faulty:
                     # faulty data
                     for col_idx in range(len(row)):
-                        row[col_idx].fill = style_warn
+                        row[col_idx].fill = style_faulty
 
                 elif address.is_repeat:
                     # Apply "repeat" color
