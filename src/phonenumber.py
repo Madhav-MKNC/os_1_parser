@@ -63,7 +63,32 @@ class PhoneNumber:
     def pad_phone_number(self, text, pad_word, address_obj):
         old_text = text
         space = " "
-        self.collapse_phone_number(text)
+        text = self.collapse_phone_number(text) # NOTE: i commented this in main.py
+        
+        # NOTE: the below logic is solid af. CAN replace the current with the below one with a new method() in future.
+        phone_nums = []
+        faulty_nums = []
+        expected_chars = [" ", "-", "_"]
+        phone_num = ""
+        for char in str("#" + text + "#"): # padding with "#" temporarily so that whole logic runs on even corner digits (if there)
+            if char.isdigit():
+                phone_num += char
+                phone_num = str(int(phone_num)) # For removing preceding 0's
+            elif char in expected_chars: continue
+            else:
+                if phone_num:
+                    if len(phone_num) == 10: phone_nums.append(phone_num)
+                    elif len(phone_num) == 12 and phone_num[:2] == "91":
+                        if len(str(int(phone_num[2:]))) == 10: phone_nums.append(phone_num[2:])
+                        else: faulty_nums.append(str(int(phone_num[2:])))
+                    else: faulty_nums.append(str(int(phone_num)))
+                    phone_num = ""
+        if not phone_nums:
+            address_obj.faulty = "FAULTY"
+        for i in faulty_nums:
+            if len(i) in [7, 8, 9, 11] or len(i) > 12:
+                address_obj.faulty = "FAULTY"
+                break
 
         regex_1 = r"[6-9]\d{9}"  # phone number at the beginning
         regex_2 = r"[ ][6-9]\d{9}[ ]|[ ][6-9]\d{9}$"  # " 7534564334 "

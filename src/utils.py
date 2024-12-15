@@ -83,6 +83,10 @@ class Utils:
         text = text.replace("email", " ").replace("e mail", " ").replace("e-mail", " ").replace("mail id", " ")
         text = text.replace(" name", " ")
         # text = text.replace(".", " ")
+        
+        # remove serial numbers
+        text = re.sub(r'\s\d{1,2}\.\s', ' ', text) # remove " 2. ", " 24. " serial number like texts
+        if text.strip().startswith('1.'): text = text.strip()[2:] # remove " 1. "
 
         # text = text.replace(" code ", " ").replace(" code.", " ").replace(" code,", " ").replace(" code:", " ").replace(" code-", " ")
         # text = text.replace("number", " ")
@@ -111,10 +115,13 @@ class Utils:
     
     def last_text_cleaner(self, text):
         text = self.text_cleaner(text)
-        text = re.sub(r'\s\d{1,2}\.\s', ' ', text) # remove " 2. ", " 24. " serial number like texts
-        if text.strip().startswith('1.'): text = text.strip()[2:] # remove " 1. "
+        
+        # NOTE: the below part migrated to early sumn
+        # text = re.sub(r'\s\d{1,2}\.\s', ' ', text) # remove " 2. ", " 24. " serial number like texts
+        # if text.strip().startswith('1.'): text = text.strip()[2:] # remove " 1. "
 
         text = text.replace(".", " ")
+        text = text.replace(" , ", " ")
 
         text = text.replace(" code ", " ").replace(" code.", " ").replace(" code,", " ").replace(" code:", " ").replace(" code-", " ")
         text = text.replace("number", " ")
@@ -160,6 +167,7 @@ class Utils:
         return text
 
     def replace_white_spaces_single_space(self, text):
+        text = ' , '.join(text.split('\n'))
         return ' '.join(text.split())
 
     def print_address(self, address_list, diff=False):

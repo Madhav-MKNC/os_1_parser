@@ -64,6 +64,10 @@ class MsOffice:
                     for col_idx in range(len(row)):
                         row[col_idx].fill = style_faulty
 
+                    # Testing: Checking all faulty rows
+                    with open('tmp/faulty_rows.txt', 'a', encoding='utf-8') as file:
+                        file.write(f"\n{address.address_old}\n{address.address}\n")
+
                 elif address.is_repeat:
                     # Apply "repeat" color
                     for col_idx in range(len(row)):
