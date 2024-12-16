@@ -104,6 +104,7 @@ def process_addresses(file_text, flag='-f'):
             address_string = utils.text_cleaner(address_string)
             address_string = utils.clean_stopping_words_and_phrases(address_string)
             # address_string = phone_number.collapse_phone_number(address_string)
+            address_string = phone_number.collapse_phone_number_and_pin(address_string)
             address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
             address_string = pincode.pad_pin_code(address_string, "*", address_obj)
             address_string = phone_number.mobile_number_text_remover(address_string)

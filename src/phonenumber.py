@@ -19,12 +19,14 @@ class PhoneNumber:
                                  "phn num,", "phn num"]
         self.phone_number_prefixes = self.utility.reverse_list(sorted(list(set(phone_number_prefixes)), key=len))
         self.phone_lookup = phone_lookup
+    
+    def collapse_phone_number_and_pin(self, text):
+        return self.collapse_phone_number(text)
 
     def collapse_phone_number(self, text):
-        regex_1 = r'\d+[ ]\d+[ ]\d+'
-        regex_2 = r'\d[iIoO]\d'
-        regex_3 = r'\d[iIoO]+$'
-
+        regex_1 = r'\d+[ ]\d+[ ]\d+'  # Match sequences of digits with optional spaces
+        regex_2 = r'\d+[iIoO]{1,5}\d'  # Match digits with 1-5 'i' or 'o' in the middle
+        regex_3 = r'\b\d*[iIoO]{1,5}\d*\b'  # Match numbers with 'i' or 'o' inside them
         match_1 = re.findall(regex_1, text)
         if len(match_1) > 0:
             for match in match_1:
@@ -50,6 +52,7 @@ class PhoneNumber:
                 text = text.replace(match, match_replacer)
 
         text = self.utility.text_cleaner(text)
+        print(f"\n{text}\n")
         return text
 
     def is_valid_phone_number_or_valid_pin(self, inp):
@@ -63,7 +66,7 @@ class PhoneNumber:
     def pad_phone_number(self, text, pad_word, address_obj):
         old_text = text
         space = " "
-        text = self.collapse_phone_number(text) # NOTE: i commented this in main.py
+        # text = self.collapse_phone_number(text) # NOTE: i commented this in main.py
         
         # NOTE: the below logic is solid af. CAN replace the current with the below one with a new method() in future.
         phone_nums = []
