@@ -1,9 +1,11 @@
 from datetime import date, datetime
 import re
+import unicodedata
 import os
 from src.districtmapper import DistrictMapper
 from src.phone_number_lookup import PhoneNumberLookup
 from src.statemapper import StateMapper
+from src.text_lang_mapper import LangConverter
 
 
 class Utils:
@@ -11,6 +13,7 @@ class Utils:
         self.district_mapper = DistrictMapper()
         self.state_mapper = StateMapper()
         self.phone_lookup = PhoneNumberLookup()
+        self.lang_converter = LangConverter()
 
     def generate_output_file_path(self, output_dir, file_base_name, extension):
         now = datetime.now()
@@ -105,7 +108,15 @@ class Utils:
         if text.startswith("-"): text = text[1:]
         return text
 
-    def text_cleaner(self, text):
+    def normalize_text_font(self, text):
+        normalized_text = unicodedata.normalize('NFKD', text)
+        normal_text = ''.join([char for char in normalized_text if unicodedata.category(char) != 'Mn'])
+        return normal_text
+
+    def text_cleaner(self, text, flag_for_translate=None):
+        text = self.normalize_text_font(text)
+        text = self.lang_converter.normalize_other_lang_numbers(text)
+        if flag_for_translate == "-t": text = self.lang_converter.translate_text(text)
         text = self.remove_emoji(text)
         text = self.replace_white_spaces_single_space(text)
         text = self.comma_space_remover(text)

@@ -4,3 +4,4 @@ xlrd==2.0.1
 xlwt==1.3.0
 xlsxwriter
 openpyxl
+googletrans==4.0.0-rc1

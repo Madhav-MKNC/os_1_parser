@@ -52,7 +52,7 @@ class PhoneNumber:
                 text = text.replace(match, match_replacer)
 
         text = self.utility.text_cleaner(text)
-        print(f"\n{text}\n")
+        # print(f"\n{text}\n")
         return text
 
     def is_valid_phone_number_or_valid_pin(self, inp):

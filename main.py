@@ -5,7 +5,7 @@ from pathlib import Path
 
 from src.address import Address
 from src.utils import Utils
-from src.email import Email
+from src.emails_handler import Email
 from src.pincode import PinCode
 from src.phonenumber import PhoneNumber
 from src.msoffice import MsOffice
@@ -101,7 +101,7 @@ def process_addresses(file_text, flag='-f'):
             email.extract_and_update_email(address_obj)
             address_string = address_obj.address
             # address_string = pincode.pin_code_extender(address_string)
-            address_string = utils.text_cleaner(address_string)
+            address_string = utils.text_cleaner(address_string, flag_for_translate=flag)
             address_string = utils.clean_stopping_words_and_phrases(address_string)
             # address_string = phone_number.collapse_phone_number(address_string)
             address_string = phone_number.collapse_phone_number_and_pin(address_string)
@@ -126,7 +126,8 @@ def process_addresses(file_text, flag='-f'):
             address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
 
             address_obj_list.append(address_obj)
-            print(f"{GREEN}[DONE {itr}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
+            print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
+            # print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose
         except Exception as err:
             print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
             print(f'{YELLOW}str{err}{RESET}\n')
@@ -148,6 +149,13 @@ def main():
     if flag in ['-f', '-file', '--f', '--file']:
         file_text = utils.read_input_file(fname)
         address_list = process_addresses(file_text)
+
+        output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xlsx")
+        ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
+    
+    elif flag in ['-t', '-translate', '--t', '--translate']:
+        file_text = utils.read_input_file(fname)
+        address_list = process_addresses(file_text, flag=flag)
 
         output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xlsx")
         ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
