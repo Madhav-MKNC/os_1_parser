@@ -127,7 +127,7 @@ def process_addresses(file_text, flag='-f'):
 
             address_obj_list.append(address_obj)
             print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
-            # print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose
+            print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose
         except Exception as err:
             print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
             print(f'{YELLOW}str{err}{RESET}\n')

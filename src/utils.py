@@ -33,6 +33,7 @@ class Utils:
         text = re.sub(r"[,]+", ",", text)
 
         # Colon cleanup
+        text = text.replace(":-", " ")
         text = text.replace(":", " ")
         # semi colon cleanup
         text = text.replace(";", " ")
@@ -83,6 +84,9 @@ class Utils:
     def phrases_cleaner(self, text):
         text = re.sub(r"https://wa\.me/\S+", " ", text) 
         text = text.replace("plz comment madi in this format", " ")
+        text = text.replace("shared from", " ")
+        text = text.replace("surveyheart.com", " ")
+        text = text.replace("answer", " ")
         text = text.replace("email", " ").replace("e mail", " ").replace("e-mail", " ").replace("mail id", " ")
         text = text.replace(" name", " ")
         # text = text.replace(".", " ")
