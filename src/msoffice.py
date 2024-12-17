@@ -24,7 +24,7 @@ class MsOffice:
         for address in address_list:
             data.append([
                 address.address_old, address.address, address.state, address.district,
-                address.block, address.pin, address.country_code, address.phone, "YES" if address.is_reorder else "NO",
+                address.block, address.pin, address.country_code, address.phone if not address.faulty else None, "YES" if address.is_reorder else "NO",
                 address.name, address.district_from_address, address.state_from_address,
                 address.occ_count, address.dist_matches_pin_and_addr, address.state_matches_pin_and_addr,
                 address.book_name, address.book_lang, "YES" if address.is_repeat else "NO", address.email, address.faulty

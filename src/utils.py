@@ -316,7 +316,8 @@ class Utils:
                     if is_reorder:
                         address.is_reorder = is_reorder
                     else:
-                        self.phone_lookup.save_phone_number(int(phone))
+                        if not address.faulty:
+                            self.phone_lookup.save_phone_number(int(phone))
 
     def read_input_file(self, file_name):
         with open(file_name, "r", encoding="utf-8") as f:

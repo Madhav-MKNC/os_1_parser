@@ -22,6 +22,15 @@ class PhoneNumber:
     
     def collapse_phone_number_and_pin(self, text):
         return self.collapse_phone_number(text)
+        regex = r'(?<=\s|,)[0-9iIoO_ ,]{6,12}(?=\s|,)'
+        matches = re.findall(regex, text)
+        if matches:
+            for match in matches:
+                clean_match = re.sub(r'[\s_]', '', match)
+                match_replacer = clean_match.replace("i", "1").replace("I", "1").replace("o", "0").replace("O", "0")
+                text = text.replace(match, match_replacer)
+        text = self.utility.text_cleaner(text)
+        return text
 
     def collapse_phone_number(self, text):
         regex_1 = r'\d+[ ]\d+[ ]\d+'  # Match sequences of digits with optional spaces
@@ -264,7 +273,8 @@ class PhoneNumber:
                     if is_reorder:
                         address_obj.is_reorder = is_reorder
                     else:
-                        self.phone_lookup.save_phone_number(int(phone))
+                        if not address_obj.faulty:
+                            self.phone_lookup.save_phone_number(int(phone))
                 phones_as_string = " , ".join(phone_list)
                 address_obj.phone = phones_as_string
                 address_obj.address = address_obj.address + " PH " + phones_as_string
@@ -279,7 +289,8 @@ class PhoneNumber:
                 is_reorder = self.phone_lookup.search_phone_number(phone)
                 address_obj.is_reorder = is_reorder
                 if not is_reorder:
-                    self.phone_lookup.save_phone_number(int(phone))
+                    if not address_obj.faulty: 
+                        self.phone_lookup.save_phone_number(int(phone))
                 return is_reorder
 
     def update_phone_numbers_lookup(self, numbers=[]):
