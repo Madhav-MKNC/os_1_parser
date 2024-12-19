@@ -1,5 +1,5 @@
 class Address:
-    def __init__(self, address, state, district, block, pin, phone=None, is_reorder=False, name=None,
+    def __init__(self, address, state, district, block, pin, phone=None, alternate_phone=None, is_reorder=False, name=None,
                  state_from_address=None,
                  district_from_address=None, count=None, dist_matches_pin_and_addr=None,
                  state_matches_pin_and_addr=None, book_name=None, book_lang=None, is_repeat=None, email=None, faulty=None):
@@ -11,6 +11,7 @@ class Address:
         self.pin = pin
         self.country_code = "+91"
         self.phone = phone
+        self.alternate_phone = alternate_phone
         self.is_reorder = is_reorder
         self.name = name
         self.state_from_address = state_from_address

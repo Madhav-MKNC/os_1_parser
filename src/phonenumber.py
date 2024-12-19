@@ -275,9 +275,11 @@ class PhoneNumber:
                     else:
                         if not address_obj.faulty:
                             self.phone_lookup.save_phone_number(int(phone))
-                phones_as_string = " , ".join(phone_list)
-                address_obj.phone = phones_as_string
-                address_obj.address = address_obj.address + " PH " + phones_as_string
+                main_phone_string = phone_list[0]
+                alternate_phones_string = " , ".join(phone_list[1:])
+                address_obj.phone = main_phone_string
+                address_obj.alternate_phone = alternate_phones_string
+                address_obj.address = address_obj.address + " PH " + " , ".join(phone_list)
                 address_obj.address = self.utility.text_cleaner(address_obj.address)
                 return address_obj.is_reorder
             elif len(highlighted_phone_list) > 0:

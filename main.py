@@ -6,6 +6,7 @@ from pathlib import Path
 from src.address import Address
 from src.utils import Utils
 from src.emails_handler import Email
+from src.numbers_handler import NumbersHandler
 from src.pincode import PinCode
 from src.phonenumber import PhoneNumber
 from src.msoffice import MsOffice
@@ -21,6 +22,7 @@ from src.colors import *
 output_dir = "output_dir"
 
 email = Email()
+numbers_handler = NumbersHandler()
 pincode = PinCode()
 phone_number_lookup = PhoneNumberLookup()
 phone_number = PhoneNumber(phone_number_lookup)
@@ -104,6 +106,7 @@ def process_addresses(file_text, flag='-f'):
             address_string = utils.text_cleaner(address_string, flag_for_translate=flag)
             address_string = utils.clean_stopping_words_and_phrases(address_string)
             # address_string = phone_number.collapse_phone_number(address_string)
+            address_string = numbers_handler.process_numbers(address_string, address_obj)
             address_string = phone_number.collapse_phone_number_and_pin(address_string)
             address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
             address_string = pincode.pad_pin_code(address_string, "*", address_obj)
@@ -127,7 +130,7 @@ def process_addresses(file_text, flag='-f'):
 
             address_obj_list.append(address_obj)
             print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
-            print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose
+            # print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose
         except Exception as err:
             print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
             print(f'{YELLOW}str{err}{RESET}\n')
