@@ -105,11 +105,12 @@ def process_addresses(file_text, flag='-f'):
             # address_string = pincode.pin_code_extender(address_string)
             address_string = utils.text_cleaner(address_string, flag_for_translate=flag)
             address_string = utils.clean_stopping_words_and_phrases(address_string)
-            # address_string = phone_number.collapse_phone_number(address_string)
-            address_string = numbers_handler.pad_numbers(address_string, address_obj)
-            address_string = phone_number.collapse_phone_number_and_pin(address_string)
-            address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
-            address_string = pincode.pad_pin_code(address_string, "*", address_obj)
+
+            # address_string = phone_number.collapse_phone_number_and_pin(address_string)
+            # address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
+            # address_string = pincode.pad_pin_code(address_string, "*", address_obj)
+            address_string = numbers_handler.pad_numbers(address_string, address_obj) # this replaces above 3 lines of code
+
             address_string = phone_number.mobile_number_text_remover(address_string)
             address_string = pincode.pin_number_text_remover(address_string)
             address_obj.address = address_string
@@ -130,7 +131,7 @@ def process_addresses(file_text, flag='-f'):
 
             address_obj_list.append(address_obj)
             print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
-            # print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose
+            print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose
         except Exception as err:
             print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
             print(f'{YELLOW}str{err}{RESET}\n')

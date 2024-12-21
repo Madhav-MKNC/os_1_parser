@@ -5,7 +5,8 @@ import re
 
 class NumbersHandler:
     def __init__(self):
-        pass
+        self.expected_chars = [" ", "-", "_"]
+        self.typo_chars = {"i": 1, "I": 1, "o": 0, "O": 0}
 
     def is_valid_phone_number_or_valid_pin(self, inp):
         try:
@@ -15,11 +16,32 @@ class NumbersHandler:
             pass 
         return False
 
+    def this_is_a_typo(self, text, index, reverse_direction=None):
+        # rule: should be attached with some valid digit (0-9) or (o/i) iff those are attached with some valid digits too
+        # print(text, index)
+
+        if reverse_direction is None or reverse_direction == False:
+            if index < len(text) - 1:
+                if text[index+1].isdigit(): return True 
+                if text[index+1] in self.expected_chars:
+                    if text[index-1] in self.expected_chars: return False
+                    return self.this_is_a_typo(text, index+1, reverse_direction=False)
+                if text[index+1] in self.typo_chars: return self.this_is_a_typo(text, index+1, reverse_direction=False)
+
+        if reverse_direction is None or reverse_direction == True:
+            if index > 0:
+                if text[index-1].isdigit(): return True
+                if text[index-1] in self.expected_chars:
+                    if text[index+1] in self.expected_chars: return False
+                    return self.this_is_a_typo(text, index-1, reverse_direction=True)
+                if text[index-1] in self.typo_chars: return self.this_is_a_typo(text, index-1, reverse_direction=True)
+
+        return False
+
     def pad_numbers(self, address_string, address_obj):
         # return address_string
         new_text = address_string
         pad_char = "*"
-        expected_chars = [" ", "-", "_"]
 
         pin_code = ""
         phone_nums = []
@@ -38,9 +60,16 @@ class NumbersHandler:
                 if digit_begin:
                     temp_text = padded_text[:i] + pad_char + padded_text[i:] # beginning pad_char
                     digit_begin = False
-            elif char in expected_chars:
+            elif char in self.expected_chars:
                 temp_text = padded_text[:i] + padded_text[i+1:] # skip/remove this char
                 continue
+            elif char in self.typo_chars and self.this_is_a_typo(padded_text, i):
+                char = self.typo_chars[char]
+                number_str += char
+                number_str = str(int(number_str)) # For removing preceding 0's
+                if digit_begin:
+                    temp_text = padded_text[:i] + pad_char + padded_text[i:] # beginning pad_char
+                    digit_begin = False
             else:
                 if number_str:
                     if len(number_str) == 10:
@@ -79,3 +108,11 @@ class NumbersHandler:
                 break
 
         return new_text
+
+
+if __name__ == "__main__":
+    x = NumbersHandler()
+    print(x.this_is_a_typo('iiii-oooi1', 2))
+    print(x.this_is_a_typo('iiiiooo i 1', 2))
+    print(x.this_is_a_typo('iiiirooo i 1', 2))
+
