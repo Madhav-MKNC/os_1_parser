@@ -15,46 +15,67 @@ class NumbersHandler:
             pass 
         return False
 
-    def process_numbers(self, address_string, address_obj):
-        return address_string
-        text = address_obj.address
-        old_text = text
+    def pad_numbers(self, address_string, address_obj):
+        # return address_string
+        new_text = address_string
         pad_char = "*"
+        expected_chars = [" ", "-", "_"]
+
+        pin_code = ""
         phone_nums = []
         faulty_nums = []
-        expected_chars = [" ", "-", "_"]
-        phone_num = ""
 
-        for char in str("#" + text + "#"): # temp padding with "#" for inclusivity of corner digits (if there).
+        number_str = ""
+        temp_text = new_text
+        digit_begin = True
+        padded_text = str("#" + address_string + "#") # temp padding with "#" for inclusivity of corner digits (if there).
+
+        for i in range(len(padded_text)):
+            char = padded_text[i]
             if char.isdigit():
-                phone_num += char
-                phone_num = str(int(phone_num)) # For removing preceding 0's
-            elif char in expected_chars: continue
+                number_str += char
+                number_str = str(int(number_str)) # For removing preceding 0's
+                if digit_begin:
+                    temp_text = padded_text[:i] + pad_char + padded_text[i:] # beginning pad_char
+                    digit_begin = False
+            elif char in expected_chars:
+                temp_text = padded_text[:i] + padded_text[i+1:] # skip/remove this char
+                continue
             else:
-                if phone_num:
-                    if len(phone_num) == 10: phone_nums.append(phone_num)
-                    elif len(phone_num) == 12 and phone_num[:2] == "91":
-                        if len(str(int(phone_num[2:]))) == 10: phone_nums.append(phone_num[2:])
-                        else: faulty_nums.append(str(int(phone_num[2:])))
-                    else: faulty_nums.append(str(int(phone_num)))
-                    phone_num = ""
-        if not phone_nums:
-            address_obj.faulty = "FAULTY"
+                if number_str:
+                    if len(number_str) == 10:
+                        phone_nums.append(number_str)
+                        temp_text = padded_text[:i] + pad_char + padded_text[i:] # ending pad_char
+                        new_text = temp_text
+                    elif len(number_str) == 12 and number_str[:2] == "91":
+                        if len(str(int(number_str[2:]))) == 10:
+                            phone_nums.append(number_str[2:])
+                            temp_text = padded_text[:i] + pad_char + padded_text[i:] # ending pad_char
+                            new_text = temp_text
+                        else: faulty_nums.append(number_str)
+                    elif len(number_str) == 6:
+                        if not pin_code:
+                            pin_code = number_str
+                            temp_text = padded_text[:i] + pad_char + padded_text[i:] # ending pad_char
+                            temp_text = new_text
+                        else: # i.e. entry with more than 1 pincode -> faulty
+                            faulty_nums.append(number_str) # so faulty_nums might also have len 6 nums
+                    else: faulty_nums.append(str(int(number_str)))
+                # reset all temp variables
+                temp_text = new_text
+                number_str = ""
+                digit_begin = True
+
+        new_text = new_text[1:-1] # removing the padded "#"'s from the ends
+        
+        # if pin_code: address_obj.pin = pin_code
+        # for phn_num in phone_nums: pass
+
+        if address_string == new_text: address_obj.faulty = "FAULTY"
+        if not phone_nums: address_obj.faulty = "FAULTY"
         for i in faulty_nums:
-            if len(i) in [7, 8, 9, 11] or len(i) > 12:
+            if len(i) in [6, 8, 9, 11] or len(i) > 12:
                 address_obj.faulty = "FAULTY"
                 break
 
-        for ph_num in set(phone_nums):
-            replacer = f" {pad_char}{ph_num}{pad_char} "
-            text = text.replace(ph_num, replacer)
-
-        pattern = r'\*(\d+)\*'
-        matches = re.findall(pattern, text)
-        if not matches: address_obj.faulty = "FAULTY"
-        for phone in matches:
-            if not self.is_valid_phone_number_or_valid_pin(phone):
-                address_obj.faulty = "FAULTY"
-        if old_text == text: address_obj.faulty = "FAULTY"
-
-        return text
+        return new_text
