@@ -109,6 +109,7 @@ def process_addresses(file_text, flag='-f'):
             # address_string = phone_number.collapse_phone_number_and_pin(address_string)
             # address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
             # address_string = pincode.pad_pin_code(address_string, "*", address_obj)
+            print(f"{BLUE}{address_string}{RESET}")
             address_string = numbers_handler.pad_numbers(address_string, address_obj) # this replaces above 3 lines of code
 
             address_string = phone_number.mobile_number_text_remover(address_string)
@@ -130,13 +131,13 @@ def process_addresses(file_text, flag='-f'):
             address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
 
             address_obj_list.append(address_obj)
-            print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
-            print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose
+            # print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
+            print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose mode
         except Exception as err:
             print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
             print(f'{YELLOW}str{err}{RESET}\n')
 
-    address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True)
+    # address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True) # sort by length of address
     utils.update_reorder_and_repeat(address_obj_list)
     phone_number.update_phone_numbers_lookup()
     print(f"\n{GREEN}[ successfully processed ]{RESET}")
