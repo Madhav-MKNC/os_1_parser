@@ -36,72 +36,57 @@ class NumbersHandler:
         return text
 
 
-    def pad_numbers(self, address_string, address_obj):
-        # address_string = phone_number.collapse_phone_number_and_pin(address_string)
-        # address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
-        # address_string = pincode.pad_pin_code(address_string, "*", address_obj)
-        # return address_string
+    def find_valid_nums(self, input_string):
+        # Create a regex pattern to match substrings containing only digits or expected_chars
+        pattern = re.compile(f'[\\d{"".join(self.expected_chars)}]+')
+        potential_substrings = pattern.findall(input_string)
 
-        address_string = self.fix_digit_typos(address_string)
-        new_text = address_string
-        pad_char = "*"
-
-        pin_code = ""
+        valid_nums = dict()
+        invalid_nums = dict()
         phone_nums = []
-        faulty_nums = []
+        pin_code = ""
 
-        number_str = ""
-        temp_text = new_text
-        digit_begin = True
-        padded_text = str("#" + address_string + "#") # temp padding with "#" for inclusivity of corner digits (if there).
+        for substring in potential_substrings:
+            digits_only = re.sub(f'[^\\d]', '', substring) # Remove any non-digit characters
+            digits_only = digits_only.lstrip('0') # Remove leading zeros
 
-        for i in range(len(padded_text)):
-            char = padded_text[i]
-            if char.isdigit():
-                number_str += char
-                number_str = str(int(number_str)) # For removing preceding 0's
-                if digit_begin:
-                    temp_text = padded_text[:i] + pad_char + padded_text[i:] # beginning pad_char
-                    digit_begin = False
-            elif char in self.expected_chars:
-                temp_text = padded_text[:i] + padded_text[i+1:] # skip/remove this char
+            if len(digits_only) == 6:
+                if not pin_code:
+                    valid_nums[substring] = digits_only
+                    pin_code = digits_only
+                    continue
+
+            if len(digits_only) == 10:
+                valid_nums[substring] = digits_only
+                phone_nums.append(digits_only)
                 continue
-            else:
-                if number_str:
-                    if len(number_str) == 10:
-                        phone_nums.append(number_str)
-                        temp_text = padded_text[:i] + pad_char + padded_text[i:] # ending pad_char
-                        new_text = temp_text
-                    elif len(number_str) == 12 and number_str[:2] == "91":
-                        if len(str(int(number_str[2:]))) == 10:
-                            phone_nums.append(number_str[2:])
-                            temp_text = padded_text[:i-1] + pad_char + padded_text[i-1:] # ending pad_char
-                            new_text = temp_text
-                        else: faulty_nums.append(number_str)
-                    elif len(number_str) == 6:
-                        if not pin_code:
-                            pin_code = number_str
-                            temp_text = padded_text[:i-1] + pad_char + padded_text[i-1:] # ending pad_char
-                            temp_text = new_text
-                        else: # i.e. entry with more than 1 pincode -> faulty
-                            faulty_nums.append(number_str) # so faulty_nums might also have len 6 nums
-                    else: faulty_nums.append(str(int(number_str)))
-                # reset all temp variables
-                temp_text = new_text
-                number_str = ""
-                digit_begin = True
 
-        new_text = new_text[1:-1] # removing the padded "#"'s from the ends
+            if len(digits_only) == 12:
+                if digits_only[:2] == '91' and digits_only[2:].lstrip('0') == digits_only[2:]:
+                    valid_nums[substring] = digits_only
+                    phone_nums.append(digits_only[2:])
+                continue
+            
+            if len(digits_only) in [6, 8, 9, 11] or len(digits_only) > 12:
+                invalid_nums[substring] = digits_only
         
-        # if pin_code: address_obj.pin = pin_code
-        # for phn_num in phone_nums: pass
+        # print(valid_nums)
+        return valid_nums, invalid_nums, phone_nums, pin_code
 
-        if address_string == new_text: address_obj.faulty = "FAULTY"
+
+    def pad_numbers(self, address_string, address_obj):
+        # Pad pincode and phonoe number(s) with "*" characters
+        address_string = self.fix_digit_typos(address_string)
+
+        new_text = address_string
+        valid_nums, invalid_nums, phone_nums, pin_code = self.find_valid_nums(new_text)
+
+        for valid_substring in valid_nums:
+            new_text = new_text.replace(valid_substring, f" *{valid_nums[valid_substring]}* ") # padded with "*"
+
+        if new_text == address_string: address_obj.faulty = "FAULTY"
         if not phone_nums: address_obj.faulty = "FAULTY"
-        for i in faulty_nums:
-            if len(i) in [6, 8, 9, 11] or len(i) > 12:
-                address_obj.faulty = "FAULTY"
-                break
+        if len(invalid_nums): address_obj.faulty = "FAULTY"
         print(new_text)
         return new_text
 
