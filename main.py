@@ -106,7 +106,7 @@ def process_addresses(file_text, flag='-f'):
             address_string = utils.text_cleaner(address_string, flag_for_translate=flag)
             address_string = utils.clean_stopping_words_and_phrases(address_string)
 
-            # address_string = phone_number.collapse_phone_number_and_pin(address_string)
+        # address_string = phone_number.collapse_phone_number_and_pin(address_string)
             # address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
             # address_string = pincode.pad_pin_code(address_string, "*", address_obj)
             print(f"{BLUE}{address_string}{RESET}")
@@ -131,8 +131,8 @@ def process_addresses(file_text, flag='-f'):
             address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
 
             address_obj_list.append(address_obj)
-            # print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
-            print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose mode
+            print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
+            # print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose mode
         except Exception as err:
             print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
             print(f'{YELLOW}str{err}{RESET}\n')

@@ -102,7 +102,7 @@ class NumbersHandler:
             if len(i) in [6, 8, 9, 11] or len(i) > 12:
                 address_obj.faulty = "FAULTY"
                 break
-        print(new_text)
+        # print(new_text)
         return new_text
 
 
