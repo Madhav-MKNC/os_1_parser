@@ -88,7 +88,7 @@ def get_address_list(chat_log: str, flag='-f') -> list:
 
     return address_list
 
-def process_addresses(file_text, flag='-f'):
+def process_addresses(file_text, flag='-f', verbose_mode=False):
     if file_text is None or not len(file_text):
         return []
 
@@ -109,9 +109,9 @@ def process_addresses(file_text, flag='-f'):
         # address_string = phone_number.collapse_phone_number_and_pin(address_string)
             # address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
             # address_string = pincode.pad_pin_code(address_string, "*", address_obj)
-            # print(f"{BLUE}{address_string}{RESET}")
+            if verbose_mode: print(f"{BLUE}{address_string}{RESET}")
             address_string = numbers_handler.pad_numbers(address_string, address_obj) # this replaces above 3 lines of code
-
+            if verbose_mode: print(address_string)
             address_string = phone_number.mobile_number_text_remover(address_string)
             address_string = pincode.pin_number_text_remover(address_string)
             address_obj.address = address_string
@@ -131,8 +131,10 @@ def process_addresses(file_text, flag='-f'):
             address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
 
             address_obj_list.append(address_obj)
-            print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
-            # print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose mode
+            if verbose_mode:
+                print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose mode
+            else:
+                print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
         except Exception as err:
             print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
             print(f'{YELLOW}str{err}{RESET}\n')
@@ -150,17 +152,20 @@ def main():
 
     flag = sys.argv[1].lower()
     fname = sys.argv[2]
+    verbose_mode = False
+    if ' -v ' in " "+' '.join(sys.argv)+" ":
+        verbose_mode = True
 
     if flag in ['-f', '-file', '--f', '--file']:
         file_text = utils.read_input_file(fname)
-        address_list = process_addresses(file_text)
+        address_list = process_addresses(file_text, verbose_mode=verbose_mode)
 
         output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xlsx")
         ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
     
     elif flag in ['-t', '-translate', '--t', '--translate']:
         file_text = utils.read_input_file(fname)
-        address_list = process_addresses(file_text, flag=flag)
+        address_list = process_addresses(file_text, flag=flag, verbose_mode=verbose_mode)
 
         output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xlsx")
         ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
@@ -173,7 +178,7 @@ def main():
     
     elif flag in ['-m', '-modified', '-modify', '--m', '--modified', '--modify', '-mod', '--mod']:
         file_text = utils.read_input_file(fname)
-        address_list = process_addresses(file_text, flag='-m')
+        address_list = process_addresses(file_text, flag='-m', verbose_mode=verbose_mode)
 
         output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xlsx")
         ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)

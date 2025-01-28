@@ -40,6 +40,12 @@ class NumbersHandler:
         # Create a regex pattern to match substrings containing only digits or expected_chars
         pattern = re.compile(f'[\\d{"".join(self.expected_chars)}]+')
         potential_substrings = pattern.findall(input_string)
+        
+        for potential_string in potential_substrings:
+            for char in potential_string:
+                if char not in self.expected_chars and not char.isdigit():
+                    potential_substrings.remove(potential_string)
+                    break   
 
         valid_nums = dict()
         invalid_nums = dict()
@@ -71,6 +77,7 @@ class NumbersHandler:
                 invalid_nums[substring] = digits_only
         
         # print(valid_nums)
+        # print(f"\033[31m{invalid_nums}\033[0m")
         return valid_nums, invalid_nums, phone_nums, pin_code
 
 
