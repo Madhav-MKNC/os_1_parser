@@ -87,7 +87,7 @@ class NumbersHandler:
         if new_text == address_string: address_obj.faulty = "FAULTY"
         if not phone_nums: address_obj.faulty = "FAULTY"
         if len(invalid_nums): address_obj.faulty = "FAULTY"
-        print(new_text)
+        # print(new_text)
         return new_text
 
 

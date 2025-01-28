@@ -109,7 +109,7 @@ def process_addresses(file_text, flag='-f'):
         # address_string = phone_number.collapse_phone_number_and_pin(address_string)
             # address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
             # address_string = pincode.pad_pin_code(address_string, "*", address_obj)
-            print(f"{BLUE}{address_string}{RESET}")
+            # print(f"{BLUE}{address_string}{RESET}")
             address_string = numbers_handler.pad_numbers(address_string, address_obj) # this replaces above 3 lines of code
 
             address_string = phone_number.mobile_number_text_remover(address_string)
