@@ -47,7 +47,9 @@ def get_address_list(chat_log: str, flag='-f') -> list:
         if newline_index != -1:
             chat_log = chat_log[newline_index + 1:]
 
-        # I dont am/pm wale format me "\u202f" kahan se aajata hai (eg: "10:18\u202fam" instead of "10:18 am")
+        # I dont know am/pm wale format me "\u202f" kahan se aajata hai (eg: "10:18\u202fam" instead of "10:18 am")
+        # actually... i know, that's some special char that looks like a space but is not a space
+        # so replacing it with normal space
         chat_log = chat_log.replace('\u202f', ' ')
 
         pattern = r"(?i)(\d{1,2}/\d{1,2}/\d{2,4}, \d{1,2}:\d{2}(?: (?:am|pm))? -)"
