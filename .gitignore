@@ -6,7 +6,7 @@ __pycache__/
 *.pyo
 
 output_dir
-src/phone_number_lookup.txt
+phone_number_lookup.txt
 whatsapp.txt
 tmp
 input_dir

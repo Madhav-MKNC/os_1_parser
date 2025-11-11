@@ -53,8 +53,8 @@ class MsOffice:
             style_faulty = PatternFill(start_color="FFC0CB", end_color="FFC0CB", fill_type="solid")  # Pink
             style_warn = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")  # Red
             style_alert = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")  # Yellow
-            style_duplicate = PatternFill(start_color="A52A2A", end_color="A52A2A", fill_type="solid")  # Brown
-            style_repeat = PatternFill(start_color="808080", end_color="808080", fill_type="solid")  # Gray
+            style_repeat = PatternFill(start_color="A52A2A", end_color="A52A2A", fill_type="solid")  # Brown
+            style_duplicate = PatternFill(start_color="808080", end_color="808080", fill_type="solid")  # Gray
 
             # Apply color formatting based on conditions
             for row_idx, address in enumerate(address_list, start=2):  # start=2 to skip header row

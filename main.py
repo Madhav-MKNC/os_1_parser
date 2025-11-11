@@ -102,23 +102,27 @@ def process_addresses(file_text, flag='-f', verbose_mode=False):
     print(f"{BLUE}*** Processing Addresses ***{RESET}")
     for itr, address_obj in enumerate(address_list):
         try:
-            email.extract_and_update_email(address_obj)
+            address_obj = email.extract_and_update_email(address_obj)
             address_string = address_obj.address
             # address_string = pincode.pin_code_extender(address_string)
             address_string = utils.text_cleaner(address_string, flag_for_translate=flag)
             address_string = utils.clean_stopping_words_and_phrases(address_string)
 
-        # address_string = phone_number.collapse_phone_number_and_pin(address_string)
-            # address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
-            # address_string = pincode.pad_pin_code(address_string, "*", address_obj)
+            # We are handling numbers below
+            address_string = phone_number.collapse_phone_number_and_pin(address_string)
+            address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
+            address_string = pincode.pad_pin_code(address_string, "*", address_obj)
             if verbose_mode: print(f"{BLUE}{address_string}{RESET}")
-            address_string = numbers_handler.pad_numbers(address_string, address_obj) # this replaces above 3 lines of code
+            # address_string = numbers_handler.pad_numbers(address_string, address_obj) # this replaces above 3 lines of code
+
             if verbose_mode: print(address_string)
             address_string = phone_number.mobile_number_text_remover(address_string)
             address_string = pincode.pin_number_text_remover(address_string)
             address_obj.address = address_string
             pincode.update_pin_number(address_obj)
+            print(f"{address_obj.pin}")
             phone_number.update_phone_number(address_obj)
+            print(f"{address_obj.phone}")
             address_obj.address = utils.last_text_cleaner(address_obj.address)
 
             #Attribute from address parsing
