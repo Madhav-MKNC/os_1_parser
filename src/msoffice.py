@@ -25,7 +25,7 @@ class MsOffice:
             data.append([
                 address.address_old, address.address, address.state, address.district,
                 address.block, address.pin, address.country_code,
-                address.phone if not address.faulty else None, address.alternate_phone if not address.faulty else None, 
+                address.phone, address.alternate_phone, 
                 "YES" if address.is_reorder else "NO",
                 address.name, address.district_from_address, address.state_from_address,
                 address.occ_count, address.dist_matches_pin_and_addr, address.state_matches_pin_and_addr,
@@ -95,17 +95,11 @@ class MsOffice:
                     for col_idx in range(len(row)):
                         row[col_idx].fill = style_warn
 
-            # Optional: Set other formatting, like column widths
+            # Set column widths based on header length (adjusted for padding)
             for col in worksheet.columns:
-                max_length = 0
+                max_length = len(str(col[0].value))  # Get the header length only
                 column = col[0].column_letter  # Get the column name
-                for cell in col:
-                    try:
-                        if len(str(cell.value)) > max_length:
-                            max_length = len(cell.value)
-                    except:
-                        pass
-                adjusted_width = (max_length + 2)
+                adjusted_width = (max_length + 2)  # Add some padding to ensure visibility
                 worksheet.column_dimensions[column].width = adjusted_width
 
     def import_from_Excel_sheet(self, file_name: str):

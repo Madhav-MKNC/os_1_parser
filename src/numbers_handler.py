@@ -27,7 +27,6 @@ class NumbersHandler:
             if len(grp) >= 3:
                 # Check if the string contains at least one digit and only 'i', 'o', and digits (no other characters)
                 if re.match(r'^[io0-9]*$', grp) and re.search(r'\d', grp):
-                # if re.match(r'^[io0-9]*$', grp) and re.search(r'\d', grp): # add self.expected_chars in the check
                     for char in self.typo_chars:
                         grp = grp.replace(char, self.typo_chars[char])
             new_splits.append(grp)

@@ -85,6 +85,8 @@ class Utils:
         text = re.sub(r"https://wa\.me/\S+", " ", text) 
         text = text.replace("plz comment madi in this format", " ")
         text = text.replace("shared from", " ")
+        text = text.replace("<this message was edited>", " ")
+        text = text.replace("this message was edited", " ")
         text = text.replace("surveyheart.com", " ")
         text = text.replace("answer", " ")
         text = text.replace("email", " ").replace("e mail", " ").replace("e-mail", " ").replace("mail id", " ")
@@ -182,7 +184,7 @@ class Utils:
         return text
 
     def replace_white_spaces_single_space(self, text):
-        text = ' , '.join(text.split('\n'))
+        # text = ' , '.join(text.split('\n'))
         return ' '.join(text.split())
 
     def print_address(self, address_list, diff=False):
