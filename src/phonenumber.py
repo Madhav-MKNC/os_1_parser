@@ -95,12 +95,14 @@ class PhoneNumber:
                         else: faulty_nums.append(str(int(phone_num[2:])))
                     else: faulty_nums.append(str(int(phone_num)))
                     phone_num = ""
-        if not phone_nums:
-            address_obj.faulty = "FAULTY"
-        for i in faulty_nums:
-            if len(i) in [7, 8, 9, 11] or len(i) > 12:
-                address_obj.faulty = "FAULTY"
-                break
+        
+        # commenting the below code for functioning of the legacy version
+        # if not phone_nums:
+        #     address_obj.faulty = "FAULTY"
+        # for i in faulty_nums:
+        #     if len(i) in [7, 8, 9, 11] or len(i) > 12:
+        #         address_obj.faulty = "FAULTY"
+        #         break
 
         regex_1 = r"[6-9]\d{9}"  # phone number at the beginning
         regex_2 = r"[ ][6-9]\d{9}[ ]|[ ][6-9]\d{9}$"  # " 7534564334 "

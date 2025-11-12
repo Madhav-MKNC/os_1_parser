@@ -124,7 +124,7 @@ def process_addresses(file_text, flag='-f', verbose_mode=False):
             pincode.update_pin_number(address_obj)
             # print(f"{address_obj.pin}")
             phone_number.update_phone_number(address_obj)
-            print(f"{address_obj.phone}")
+            # print(f"{address_obj.phone}")
             address_obj.address = utils.last_text_cleaner(address_obj.address)
 
             #Attribute from address parsing
