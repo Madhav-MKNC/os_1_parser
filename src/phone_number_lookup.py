@@ -54,9 +54,8 @@ class PhoneNumberLookup:
         # print("PhoneNumberLookup:update_phone_numbers")
         # print(self.numbers)
         
-        # NOTE: no lookup create
-        pass
-        # with open(self.number_file, 'w', encoding='utf-8') as f:
-        #     number_string = list(map(str, self.numbers))
-        #     #print("Phone numbers : %s " % self.numbers)
-        #     f.write('\n'.join(number_string))
+        with open(self.number_file, 'w', encoding='utf-8') as f:
+            # number_string = list(map(str, self.numbers))
+            # print("Phone numbers : %s " % self.numbers)
+            # f.write('\n'.join(number_string))
+            f.write('')
