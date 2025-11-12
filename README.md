@@ -42,3 +42,6 @@ Python main.py --t file.txt
 Python main.py -translate file.txt 
 Python main.py --translate file.txt
 ```
+
+
+latest version
