@@ -138,6 +138,7 @@ def process_addresses(file_text, flag='-f', verbose_mode=False):
             address_obj.set_book_name(book_mapper.get_book_from_address_record(address_string))
             address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
 
+            address_obj.address = address_obj.address.capitalize()
             address_obj_list.append(address_obj)
             if verbose_mode:
                 print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose mode
