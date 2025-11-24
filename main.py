@@ -1,3 +1,4 @@
+
 import re
 import sys
 import os
@@ -95,7 +96,7 @@ def process_addresses(file_text, flag='-f', verbose_mode=False):
         return []
 
     address_list = get_address_list(file_text, flag=flag)
-    
+    # address_list.sort(reverse=True) # sort by length of address
     address_obj_list = []
     # phone_numbers = []
     
@@ -138,6 +139,7 @@ def process_addresses(file_text, flag='-f', verbose_mode=False):
             address_obj.set_book_name(book_mapper.get_book_from_address_record(address_string))
             address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
 
+            address_obj.address = address_obj.address.title()
             address_obj_list.append(address_obj)
             if verbose_mode:
                 print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose mode

@@ -6,7 +6,7 @@ from os import path
 class PhoneNumberLookup:
 
     def __init__(self):
-        self.number_file = os.getcwd() + "/output_dir/phone_number_lookup.txt"
+        self.number_file = os.getcwd() + "/src/phone_number_lookup.txt"
         self.numbers = []
         if path.exists(self.number_file):
             with open(self.number_file, 'r') as f:
@@ -55,7 +55,7 @@ class PhoneNumberLookup:
         # print(self.numbers)
         
         with open(self.number_file, 'w', encoding='utf-8') as f:
-            # number_string = list(map(str, self.numbers))
-            # print("Phone numbers : %s " % self.numbers)
-            # f.write('\n'.join(number_string))
-            f.write('')
+            number_string = list(map(str, self.numbers))
+            #print("Phone numbers : %s " % self.numbers)
+            f.write('\n'.join(number_string))
+           
