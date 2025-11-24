@@ -8,7 +8,8 @@ class PinCode:
     def __init__(self):
         self.utility = Utils()
         pin_number_prefixes = [" pin ", " pin/ ", " pin_ ", " cod ", "p/c ", " pinn cod ", " code ", " cd ",
-                               " pincode ", " cod ", "pin ", "pin,", " pinkod ", "pin-", " pino "]
+                            #    " pincode ", " cod ", "pin ", "pin,", " pinkod ", "pin-", " pino "]
+                               " pincode ", " cod ", " pin ", " pin,", " pinkod ", " pin-", " pino "]
         self.pin_number_prefixes = self.utility.reverse_list(sorted(list(set(pin_number_prefixes)), key=len))
 
     def update_pin_number(self, address_obj):
