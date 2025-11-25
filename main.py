@@ -3,9 +3,11 @@ import re
 import sys
 import os
 from pathlib import Path
+from typing import List, Dict
 
 from src.address import Address
 from src.utils import Utils
+from src.mknc_utils import MKNCUtils
 from src.emails_handler import Email
 from src.numbers_handler import NumbersHandler
 from src.pincode import PinCode
@@ -29,6 +31,7 @@ phone_number_lookup = PhoneNumberLookup()
 phone_number = PhoneNumber(phone_number_lookup)
 ms_office = MsOffice()
 utils = Utils()
+mknc_utils = MKNCUtils()
 state_mapper = StateMapper()
 district_mapper = DistrictMapper()
 book_mapper = BookMapper()
@@ -97,7 +100,7 @@ def process_addresses(file_text, flag='-f', verbose_mode=False):
 
     address_list = get_address_list(file_text, flag=flag)
     # address_list.sort(reverse=True) # sort by length of address
-    address_obj_list = []
+    address_obj_list: List[Address] = []
     # phone_numbers = []
     
     print(f"{BLUE}*** Processing Addresses ***{RESET}")
@@ -152,6 +155,17 @@ def process_addresses(file_text, flag='-f', verbose_mode=False):
     # address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True) # sort by length of address
     utils.update_reorder_and_repeat(address_obj_list)
     phone_number.update_phone_numbers_lookup()
+
+    # Post processing (one more iteration)
+    for adr in address_obj_list:
+        adr_str_updated = adr.address
+        if mknc_utils.has_name(adr_str_updated):
+            adr.name = mknc_utils.get_name(adr_str_updated)
+        if mknc_utils.has_book_name(adr_str_updated):
+            adr.book_name = mknc_utils.get_book_name(adr_str_updated)
+        if mknc_utils.has_book_lang(adr_str_updated):
+            adr.book_lang = mknc_utils.get_book_lang(adr_str_updated)
+
     print(f"\n{GREEN}[ successfully processed ]{RESET}")
     print(f"{GREEN}[ phone_number_lookup ✔ ]{RESET}")
     return address_obj_list

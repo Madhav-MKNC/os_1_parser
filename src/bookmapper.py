@@ -120,6 +120,10 @@ class BookMapper:
             "bhagawad geetha": "Geeta Tera Gyan Amrit",
             "GTGA": "Geeta Tera Gyan Amrit",
             "gg": "Gyan Ganga",
+            "jnanganga": "Gyan Ganga",
+            "njan ganga": "Gyan Ganga",
+            "njana ganga": "Gyan Ganga",
+            "gana ganga": "Gyan Ganga",
             "Jnana ganga": "Gyan Ganga",
             "Jnana Ganga": "Gyan Ganga",
             "jnana ganga": "Gyan Ganga",
@@ -127,6 +131,10 @@ class BookMapper:
             "Gnana ganga": "Gyan Ganga",
             "gnana ganga": "Gyan Ganga",
             "GG": "Gyan Ganga",
+            "Gyan Ganga": "Gyan Ganga",
+            "gyan ganga": "Gyan Ganga",
+            "Gyaan Ganga": "Gyan Ganga",
+            "gyaan ganga": "Gyan Ganga",
             "jkr": "Jeene Ki Raah",
             "Jeevinchu margamu": "Jeene Ki Raah",
             "jeevinchu margamu": "Jeene Ki Raah",
@@ -187,7 +195,11 @@ class BookMapper:
             "Jivinchu maargam": "Jeene Ki Raah",
             "jivinchu maargam": "Jeene Ki Raah",
             "Jivinchu Maargam": "Jeene Ki Raah",
-            "JKR": "Jeene Ki Raah"
+            "JKR": "Jeene Ki Raah",
+            "Jeene Ki Raah": "Jeene Ki Raah",
+            "jeene ki raah": "Jeene Ki Raah",
+            "Jine Ki Raah": "Jeene Ki Raah",
+            "jine ki raah": "Jeene Ki Raah"
         }
 
     def get_book_from_address_record(self, address_string):
