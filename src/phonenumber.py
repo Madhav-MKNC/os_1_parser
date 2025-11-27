@@ -2,6 +2,7 @@ import re
 from src.utils import Utils
 from src.phone_number_lookup import PhoneNumberLookup
 
+from src.colors import *
 
 class PhoneNumber:
 
@@ -104,6 +105,7 @@ class PhoneNumber:
         #         address_obj.faulty = "FAULTY"
         #         break
 
+        regex_0 = r"[6-9]\d{11}"
         regex_1 = r"[6-9]\d{9}"  # phone number at the beginning
         regex_2 = r"[ ][6-9]\d{9}[ ]|[ ][6-9]\d{9}$"  # " 7534564334 "
         regex_3 = r"[6-9]\d{4}[ ]\d{5}"  # "65345 64334"
@@ -119,6 +121,13 @@ class PhoneNumber:
         regex_13 = r"[6-9]\d{2} \d{2} \d{5}" #"721 76 96915"
         regex_14 = r"[6-9]\d{4}_\d{5}" #98151_32964
 
+        regex_0_matches = re.findall(regex_0, text)
+        if len(regex_0_matches) > 0:
+            for match in set(regex_0_matches):
+                ph_num = match
+                if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
+                regex_0_replacer = space + pad_word + ph_num + pad_word + space
+                text = text.replace(match, regex_0_replacer)
 
         regex_1_matches = re.findall(regex_1, text)
         if len(regex_1_matches) > 0:
@@ -186,6 +195,7 @@ class PhoneNumber:
                 if len(ph_num) == 12 and ph_num.startswith("91"): ph_num = ph_num[2:]
                 regex_8_replacer = space + pad_word + ph_num + pad_word + space
                 text = text.replace(match, regex_8_replacer)
+
         regex_9_matches = re.findall(regex_9, text)
         if len(regex_9_matches) > 0:
             for match in set(regex_9_matches):
