@@ -9,7 +9,7 @@ class PhoneNumberLookup:
         self.number_file = os.getcwd() + "/src/phone_number_lookup.txt"
         self.numbers = []
         if path.exists(self.number_file):
-            with open(self.number_file, 'r') as f:
+            with open(self.number_file, 'r', encoding='utf-8') as f:
                 phone_number_text = f.read()
                 phone_number_list = phone_number_text.split("\n")
             if len(phone_number_list):
