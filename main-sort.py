@@ -203,27 +203,27 @@ def main():
         address_list = process_addresses(file_text, verbose_mode=verbose_mode)
 
         output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xlsx")
-        ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
+        ms_office.export_to_MS_Excel_using_xlsxwriter(address_list=address_list, file_name=output_file_path_xls)
     
     elif flag in ['-t', '-translate', '--t', '--translate']:
         file_text = utils.read_input_file(fname)
         address_list = process_addresses(file_text, flag=flag, verbose_mode=verbose_mode)
 
         output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xlsx")
-        ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
+        ms_office.export_to_MS_Excel_using_xlsxwriter(address_list=address_list, file_name=output_file_path_xls)
 
     elif flag in ['-n', '-name', '--n', '--name']:
         address_list = ms_office.import_from_Excel_sheet(fname)
         for address in address_list:
             utils.update_address_name(address)
-        ms_office.export_to_MS_Excel(address_list, str(fname.split(".")[0] + "_name.xls"))
+        ms_office.export_to_MS_Excel_using_xlsxwriter(address_list, str(fname.split(".")[0] + "_name.xls"))
     
     elif flag in ['-m', '-modified', '-modify', '--m', '--modified', '--modify', '-mod', '--mod']:
         file_text = utils.read_input_file(fname)
         address_list = process_addresses(file_text, flag='-m', verbose_mode=verbose_mode)
 
         output_file_path_xls = utils.generate_output_file_path(output_dir, Path(fname).stem, "xlsx")
-        ms_office.export_to_MS_Excel(address_list=address_list, file_name=output_file_path_xls)
+        ms_office.export_to_MS_Excel_using_xlsxwriter(address_list=address_list, file_name=output_file_path_xls)
 
     else:
         print(f"{RED}[!] Invalid argument{RESET}")

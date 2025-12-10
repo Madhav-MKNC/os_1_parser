@@ -22,17 +22,15 @@ class MsOffice:
         print(f"[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]")
 
         # Prepare data for DataFrame
-        data = []
-        for address in address_list:
-            data.append([
-                address.address_old, address.address, address.state, address.district,
-                address.block, address.pin, address.country_code,
-                address.phone, address.alternate_phone, 
-                "YES" if address.is_reorder else "NO",
-                address.name, address.district_from_address, address.state_from_address,
-                address.occ_count, address.dist_matches_pin_and_addr, address.state_matches_pin_and_addr,
-                address.book_name, address.book_lang, "YES" if address.is_repeat else "NO", address.email, address.faulty
-            ])
+        data = [[
+            address.address_old, address.address, address.state, address.district,
+            address.block, address.pin, address.country_code,
+            address.phone, address.alternate_phone, 
+            "YES" if address.is_reorder else "NO",
+            address.name, address.district_from_address, address.state_from_address,
+            address.occ_count, address.dist_matches_pin_and_addr, address.state_matches_pin_and_addr,
+            address.book_name, address.book_lang, "YES" if address.is_repeat else "NO", address.email, address.faulty
+        ] for address in address_list]
         
         # Create DataFrame for easier handling
         columns = [
@@ -120,6 +118,77 @@ class MsOffice:
                 worksheet.column_dimensions[column].width = adjusted_width
         
         print(f"\n[ Export completed: {file_name} ✔ ]")
+
+    def export_to_MS_Excel_using_xlsxwriter(self, address_list: list, file_name: str):
+        print(f"[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]")
+
+        # Build DataFrame (vectorized; no per-cell ops)
+        data = [[
+            address.address_old, address.address, address.state, address.district,
+            address.block, address.pin, address.country_code,
+            address.phone, address.alternate_phone, 
+            "YES" if address.is_reorder else "NO",
+            address.name, address.district_from_address, address.state_from_address,
+            address.occ_count, address.dist_matches_pin_and_addr, address.state_matches_pin_and_addr,
+            address.book_name, address.book_lang, "YES" if address.is_repeat else "NO", address.email, address.faulty
+        ] for address in address_list]
+
+        columns = [
+            "ADDRESS ORIGINAL", "ADDRESS UPDATED", "STATE", "DISTRICT", "BLOCK", "PIN", 
+            "COUNTRY CODE", "PHONE", "ALTERNATE PHONE", "RE_ORDER",
+            "NAME", "DISTRICT_FROM_ADDRESS", "STATE_FROM_ADDRESS", "DISTRICT_MATCH_COUNT",
+            "DIST_MATCHES_PIN_AND_ADDR", "STATE_MATCHES_PIN_AND_ADDR", "BOOK NAME", "BOOK LANG", 
+            "REPEAT ORDER", "EMAIL", "FAULTY"
+        ]
+
+        df = pd.DataFrame(data, columns=columns)
+
+        # Fast writer + conditional formatting (no Python loops over rows)
+        with pd.ExcelWriter(file_name, engine="xlsxwriter", engine_kwargs={"options": {"strings_to_urls": False}}) as writer:
+            sheet = "Addresses"
+            df.to_excel(writer, index=False, sheet_name=sheet)
+            wb  = writer.book
+            ws  = writer.sheets[sheet]
+            n   = len(df) + 1  # header at row 1, data starts at 2
+            rng = f"A2:U{n}"
+
+            fmt_faulty_pin   = wb.add_format({"bg_color": "#FFFF00"})  # Yellow
+            fmt_faulty_phone = wb.add_format({"bg_color": "#FFC0CB"})  # Pink
+            fmt_repeat       = wb.add_format({"bg_color": "#A52A2A"})  # Brown
+            fmt_duplicate    = wb.add_format({"bg_color": "#808080"})  # Gray
+            fmt_warn         = wb.add_format({"bg_color": "#FF0000"})  # Red
+            fmt_alert        = wb.add_format({"bg_color": "#FFFF00"})  # Yellow
+
+            # Column map (A=1): F=PIN, H=PHONE, J=RE_ORDER, S=REPEAT ORDER, U=FAULTY
+            # Priority top→down; stop_if_true keeps later rules from repainting
+            ws.conditional_format(rng, {
+                "type": "formula", "criteria": '=$S2="YES"', "format": fmt_repeat, "stop_if_true": True
+            })
+            ws.conditional_format(rng, {
+                "type": "formula", "criteria": '=$J2="YES"', "format": fmt_duplicate, "stop_if_true": True
+            })
+            ws.conditional_format(rng, {
+                "type": "formula", "criteria": '=AND($U2<>"",$F2="")', "format": fmt_faulty_pin, "stop_if_true": True
+            })
+            ws.conditional_format(rng, {
+                "type": "formula", "criteria": '=AND($U2<>"",$H2="")', "format": fmt_faulty_phone, "stop_if_true": True
+            })
+            ws.conditional_format(rng, {
+                "type": "formula", "criteria": '=AND($U2="", $H2<>"", $F2="")', "format": fmt_alert, "stop_if_true": True
+            })
+            ws.conditional_format(rng, {
+                "type": "formula", "criteria": '=AND($U2="", $H2="")', "format": fmt_warn, "stop_if_true": True
+            })
+
+            # Reasonable fixed widths (fast). Tweak as needed.
+            widths = {
+                "A": 45, "B": 45, "C": 14, "D": 18, "E": 18, "F": 10, "G": 12, "H": 14, "I": 16, "J": 10,
+                "K": 18, "L": 22, "M": 22, "N": 10, "O": 14, "P": 16, "Q": 18, "R": 14, "S": 12, "T": 28, "U": 10
+            }
+            for col, w in widths.items():
+                ws.set_column(f"{col}:{col}", w)
+
+        print(f"[ Export completed: {file_name} ✔ ]")
 
     def import_from_Excel_sheet(self, file_name: str):
         # Read the Excel file into a DataFrame
