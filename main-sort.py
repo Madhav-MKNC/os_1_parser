@@ -148,7 +148,7 @@ def _process_one_address(address_obj: Address, flag: str) -> Address | None:
         print(f'{YELLOW}str{err}{RESET}\n')
         return None
 
-def process_addresses(file_text, flag='-f', verbose_mode=False):
+def process_addresses(file_text, flag='-f', verbose_mode=False, enable_sorting=True):
     if file_text is None or not len(file_text):
         return []
 
@@ -156,7 +156,8 @@ def process_addresses(file_text, flag='-f', verbose_mode=False):
 
     # NOTE: If there is no "# " in front of "address_list.sort" then the code will sort the address in descending order
     # 🙏 NOTE: For enabling the sorting remove the "# " (the hash and the trailing space) from the below line 👇
-    address_list.sort(reverse=True) # sort by length of address
+    if enable_sorting:
+        address_list.sort(reverse=True) # sort by length of address
 
     address_obj_list: List[Address] = []
     # phone_numbers = []
