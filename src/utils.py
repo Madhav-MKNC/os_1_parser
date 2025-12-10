@@ -1,6 +1,7 @@
 from datetime import date, datetime
 import re
 import unicodedata
+import string
 import os
 from src.districtmapper import DistrictMapper
 from src.phone_number_lookup import PhoneNumberLookup
@@ -80,6 +81,10 @@ class Utils:
 
         text = self.text_cleaner(text)
         return text
+
+    def remove_non_printable_chars(self, text):
+        cleaned_text = ''.join(char for char in text if char in string.printable)
+        return cleaned_text
 
     def phrases_cleaner(self, text):
         text = re.sub(r"https://wa\.me/\S+", " ", text) 
@@ -206,7 +211,9 @@ class Utils:
                                    u"\U00002702-\U000027B0"
                                    # u"\U000024C2-\U0001F251"
                                    "]+", flags=re.UNICODE)
-        return emoji_pattern.sub(r'', text)
+        clean_text = emoji_pattern.sub(r'', text)
+        clean_text = ''.join(char for char in clean_text if char in string.printable)
+        return clean_text
 
     def house_keeping(self, address_obj):
         address_text = address_obj.address

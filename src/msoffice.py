@@ -19,6 +19,8 @@ class MsOffice:
         document.save(file_name)
 
     def export_to_MS_Excel(self, address_list: list, file_name: str):
+        print(f"[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]")
+
         # Prepare data for DataFrame
         data = []
         for address in address_list:
@@ -100,12 +102,20 @@ class MsOffice:
                     for col_idx in range(len(row)):
                         row[col_idx].fill = style_warn
 
-            # Set column widths based on header length (adjusted for padding)
+                # Print progress bar (every 1000 rows, adjust as needed)
+                if row_idx % 1000 == 0 or row_idx == len(address_list):
+                    progress = (row_idx / len(address_list)) * 100
+                    bar = '█' * int(progress // 2) + '-' * (50 - int(progress // 2))
+                    print(f"\r[{bar}] {progress:.2f}% Complete", end='', flush=True)
+
+            # Set column widths based on header length
             for col in worksheet.columns:
                 max_length = len(str(col[0].value))  # Get the header length only
                 column = col[0].column_letter  # Get the column name
                 adjusted_width = (max_length + 2)  # Add some padding to ensure visibility
                 worksheet.column_dimensions[column].width = adjusted_width
+        
+        print(f"\n[ Export completed: {file_name} ✔ ]")
 
     def import_from_Excel_sheet(self, file_name: str):
         # Read the Excel file into a DataFrame

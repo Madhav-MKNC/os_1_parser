@@ -81,7 +81,15 @@ def get_address_list(chat_log: str, flag='-f') -> list:
     address_list = []
     for address_text in string_address_list:
         if utils.valid_text(address_text):
-            address_obj = Address(address_text.lower().strip(), None, None, None, None, None)
+            address_obj = Address(
+                # NOTE: remove non printable characters like "☺"
+                utils.remove_non_printable_chars(address_text.lower().strip()),
+                None,
+                None,
+                None,
+                None,
+                None
+            )
             address_list.append(address_obj)
     
     print(f"{GREEN}*** Total addresses found: [{len(address_list)}]{RESET}")
