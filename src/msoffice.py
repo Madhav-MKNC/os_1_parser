@@ -59,54 +59,58 @@ class MsOffice:
             style_duplicate = PatternFill(start_color="808080", end_color="808080", fill_type="solid")  # Gray
 
             # Apply color formatting based on conditions
-            for row_idx, address in enumerate(address_list, start=2):  # start=2 to skip header row
-                row = worksheet[row_idx]
-                
-                if not address.phone: address.faulty = "FAULTY"
+            try:
+                for row_idx, address in enumerate(address_list, start=2):  # start=2 to skip header row
+                    row = worksheet[row_idx]
+                    
+                    if not address.phone: address.faulty = "FAULTY"
 
-                if address.faulty:
-                    # faulty data
-                    # Testing: Checking all faulty rows
-                    with open('tmp/faulty_rows.txt', 'a', encoding='utf-8') as file:
-                        file.write(f"\n{address.address_old}\n{address.address}\n")
+                    if address.faulty:
+                        # faulty data
+                        # Testing: Checking all faulty rows
+                        with open('tmp/faulty_rows.txt', 'a', encoding='utf-8') as file:
+                            file.write(f"\n{address.address_old}\n{address.address}\n")
 
-                if address.faulty and address.pin is None:
-                    for col_idx in range(len(row)):
-                        row[col_idx].fill = style_alert
+                    if address.faulty and address.pin is None:
+                        for col_idx in range(len(row)):
+                            row[col_idx].fill = style_alert
 
-                elif address.faulty and address.phone is None:
-                    for col_idx in range(len(row)):
-                        row[col_idx].fill = style_faulty
+                    elif address.faulty and address.phone is None:
+                        for col_idx in range(len(row)):
+                            row[col_idx].fill = style_faulty
 
-                elif address.is_repeat:
-                    # Apply "repeat" color
-                    for col_idx in range(len(row)):
-                        row[col_idx].fill = style_repeat
+                    elif address.is_repeat:
+                        # Apply "repeat" color
+                        for col_idx in range(len(row)):
+                            row[col_idx].fill = style_repeat
 
-                elif address.is_reorder:
-                    # Apply "duplicate" color
-                    for col_idx in range(len(row)):
-                        row[col_idx].fill = style_duplicate
+                    elif address.is_reorder:
+                        # Apply "duplicate" color
+                        for col_idx in range(len(row)):
+                            row[col_idx].fill = style_duplicate
 
-                elif address.pin is not None and address.phone is not None:
-                    # No specific color; regular address
-                    pass
+                    elif address.pin is not None and address.phone is not None:
+                        # No specific color; regular address
+                        pass
 
-                elif address.phone is not None:
-                    # Apply "alert" color
-                    for col_idx in range(len(row)):
-                        row[col_idx].fill = style_alert
+                    elif address.phone is not None:
+                        # Apply "alert" color
+                        for col_idx in range(len(row)):
+                            row[col_idx].fill = style_alert
 
-                else:
-                    # Apply "warn" color
-                    for col_idx in range(len(row)):
-                        row[col_idx].fill = style_warn
+                    else:
+                        # Apply "warn" color
+                        for col_idx in range(len(row)):
+                            row[col_idx].fill = style_warn
 
-                # Print progress bar (every 1000 rows, adjust as needed)
-                if row_idx % 1000 == 0 or row_idx == len(address_list):
-                    progress = (row_idx / len(address_list)) * 100
-                    bar = '█' * int(progress // 2) + '-' * (50 - int(progress // 2))
-                    print(f"\r[{bar}] {progress:.2f}% Complete", end='', flush=True)
+                    # Print progress bar (every 1000 rows, adjust as needed)
+                    if row_idx % 10 == 0 or row_idx == len(address_list):
+                        progress = (row_idx / len(address_list)) * 100
+                        bar = '█' * int(progress // 2) + '-' * (50 - int(progress // 2))
+                        print(f"\r[{bar}] {progress:.2f}% Complete", end='', flush=True)
+
+            except Exception as e:
+                print(f"\n[ERROR] An error occurred during formatting: {e}")
 
             # Set column widths based on header length
             for col in worksheet.columns:

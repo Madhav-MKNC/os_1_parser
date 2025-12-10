@@ -1,11 +1,11 @@
 # Number mapper for langs other than english
 
-from googletrans import Translator
+# from googletrans import Translator
 
 
 class LangConverter:
     def __init__(self):
-        self.translator = Translator()
+        # self.translator = Translator()
         self.digit_maps = {
             'english': {'0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9'},
             'hindi': {'०': '0', '१': '1', '२': '2', '३': '3', '४': '4', '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'},
@@ -44,8 +44,9 @@ class LangConverter:
 
 
     def translate_text(self, text):
-        translated = self.translator.translate(text, src='auto', dest='en')
-        return translated.text
+        # translated = self.translator.translate(text, src='auto', dest='en')
+        # return translated.text
+        return text
 
 
 # Example usage
