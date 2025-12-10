@@ -5,6 +5,9 @@ import os
 from pathlib import Path
 from typing import List, Dict
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
+
 from src.address import Address
 from src.utils import Utils
 from src.mknc_utils import MKNCUtils
@@ -102,6 +105,49 @@ def get_address_list(chat_log: str, flag='-f') -> list:
 
     return address_list
 
+# --- ADD HELPER (place above process_addresses) ---
+def _process_one_address(address_obj: Address, flag: str) -> Address | None:
+    try:
+        address_obj = email.extract_and_update_email(address_obj)
+        address_string = address_obj.address
+        # address_string = pincode.pin_code_extender(address_string)
+        address_string = utils.text_cleaner(address_string, flag_for_translate=flag)
+        address_string = utils.clean_stopping_words_and_phrases(address_string)
+
+        # We are handling numbers below
+        address_string = numbers_handler.fix_digit_typos(address_string)
+        # address_string = phone_number.collapse_phone_number_and_pin(address_string)
+        address_string = pincode.pad_pin_code(address_string, "*", address_obj)
+        address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
+        # address_string = numbers_handler.pad_numbers(address_string, address_obj) # this replaces above 3 lines of code
+
+        address_string = phone_number.mobile_number_text_remover(address_string)
+        address_string = pincode.pin_number_text_remover(address_string)
+        address_obj.address = address_string
+        pincode.update_pin_number(address_obj)
+        # print(f"{address_obj.pin}")
+        phone_number.update_phone_number(address_obj)
+        # print(f"{address_obj.phone}")
+        address_obj.address = utils.last_text_cleaner(address_obj.address)
+
+        #Attribute from address parsing
+        state_add, dist_add, occ_count = utils.get_data_from_address(address_obj.address)
+        address_obj.set_state_from_address(state_add)
+        address_obj.set_district_from_address(dist_add)
+        address_obj.set_occ_count(occ_count)
+
+        address_obj.set_dist_matches_pin_and_addr(utils.is_string_same(dist_add, address_obj.district))
+        address_obj.set_state_matches_pin_and_addr(utils.is_string_same(state_add, address_obj.state))
+        address_obj.set_book_name(book_mapper.get_book_from_address_record(address_string))
+        address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
+
+        address_obj.address = address_obj.address.title()
+        return address_obj
+    except Exception as err:
+        print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
+        print(f'{YELLOW}str{err}{RESET}\n')
+        return None
+
 def process_addresses(file_text, flag='-f', verbose_mode=False):
     if file_text is None or not len(file_text):
         return []
@@ -116,56 +162,79 @@ def process_addresses(file_text, flag='-f', verbose_mode=False):
     # phone_numbers = []
 
     print(f"{BLUE}*** Processing Addresses ***{RESET}")
-    try:
-        for itr, address_obj in enumerate(address_list):
-            try:
-                address_obj = email.extract_and_update_email(address_obj)
-                address_string = address_obj.address
-                # address_string = pincode.pin_code_extender(address_string)
-                address_string = utils.text_cleaner(address_string, flag_for_translate=flag)
-                address_string = utils.clean_stopping_words_and_phrases(address_string)
 
-                # We are handling numbers below
-                address_string = numbers_handler.fix_digit_typos(address_string)
-                # address_string = phone_number.collapse_phone_number_and_pin(address_string)
-                address_string = pincode.pad_pin_code(address_string, "*", address_obj)
-                address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
-                # address_string = numbers_handler.pad_numbers(address_string, address_obj) # this replaces above 3 lines of code
+    # NOTE START: MultiThreaded
+    total = len(address_list)
+    max_workers = min(32, (os.cpu_count() or 4))
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futs = [ex.submit(_process_one_address, ao, flag) for ao in address_list]
+        for i, fut in enumerate(as_completed(futs), 1):
+            res = fut.result()
+            if res is not None:
+                address_obj_list.append(res)
+            if not verbose_mode and (i % 100 == 0 or i == total):
+                progress = (i / total) * 100
+                filled = int(progress // 2)
+                bar = '█' * filled + '-' * (50 - filled)
+                print(
+                    f"\r{YELLOW}[{bar}] {progress:.2f}% Complete  ({i}/{total}){RESET}",
+                    end='',
+                    flush=True
+                )
+    # NOTE END: MultiThreaded
 
-                if verbose_mode: print(f"{BLUE}{address_string}{RESET}")
-                if verbose_mode: print(address_string)
+    # NOTE START: Single Threaded
+    # try:
+    #     for itr, address_obj in enumerate(address_list):
+    #         try:
+    #             address_obj = email.extract_and_update_email(address_obj)
+    #             address_string = address_obj.address
+    #             # address_string = pincode.pin_code_extender(address_string)
+    #             address_string = utils.text_cleaner(address_string, flag_for_translate=flag)
+    #             address_string = utils.clean_stopping_words_and_phrases(address_string)
 
-                address_string = phone_number.mobile_number_text_remover(address_string)
-                address_string = pincode.pin_number_text_remover(address_string)
-                address_obj.address = address_string
-                pincode.update_pin_number(address_obj)
-                # print(f"{address_obj.pin}")
-                phone_number.update_phone_number(address_obj)
-                # print(f"{address_obj.phone}")
-                address_obj.address = utils.last_text_cleaner(address_obj.address)
+    #             # We are handling numbers below
+    #             address_string = numbers_handler.fix_digit_typos(address_string)
+    #             # address_string = phone_number.collapse_phone_number_and_pin(address_string)
+    #             address_string = pincode.pad_pin_code(address_string, "*", address_obj)
+    #             address_string = phone_number.pad_phone_number(address_string, "*", address_obj)
+    #             # address_string = numbers_handler.pad_numbers(address_string, address_obj) # this replaces above 3 lines of code
 
-                #Attribute from address parsing
-                state_add, dist_add, occ_count = utils.get_data_from_address(address_obj.address)
-                address_obj.set_state_from_address(state_add)
-                address_obj.set_district_from_address(dist_add)
-                address_obj.set_occ_count(occ_count)
+    #             if verbose_mode: print(f"{BLUE}{address_string}{RESET}")
+    #             if verbose_mode: print(address_string)
 
-                address_obj.set_dist_matches_pin_and_addr(utils.is_string_same(dist_add, address_obj.district))
-                address_obj.set_state_matches_pin_and_addr(utils.is_string_same(state_add, address_obj.state))
-                address_obj.set_book_name(book_mapper.get_book_from_address_record(address_string))
-                address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
+    #             address_string = phone_number.mobile_number_text_remover(address_string)
+    #             address_string = pincode.pin_number_text_remover(address_string)
+    #             address_obj.address = address_string
+    #             pincode.update_pin_number(address_obj)
+    #             # print(f"{address_obj.pin}")
+    #             phone_number.update_phone_number(address_obj)
+    #             # print(f"{address_obj.phone}")
+    #             address_obj.address = utils.last_text_cleaner(address_obj.address)
 
-                address_obj.address = address_obj.address.title()
-                address_obj_list.append(address_obj)
-                if verbose_mode:
-                    print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose mode
-                else:
-                    print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
-            except Exception as err:
-                print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
-                print(f'{YELLOW}str{err}{RESET}\n')
-    except KeyboardInterrupt:
-        print(f"\n{RED}[!] Process interrupted by user!{RESET}")
+    #             #Attribute from address parsing
+    #             state_add, dist_add, occ_count = utils.get_data_from_address(address_obj.address)
+    #             address_obj.set_state_from_address(state_add)
+    #             address_obj.set_district_from_address(dist_add)
+    #             address_obj.set_occ_count(occ_count)
+
+    #             address_obj.set_dist_matches_pin_and_addr(utils.is_string_same(dist_add, address_obj.district))
+    #             address_obj.set_state_matches_pin_and_addr(utils.is_string_same(state_add, address_obj.state))
+    #             address_obj.set_book_name(book_mapper.get_book_from_address_record(address_string))
+    #             address_obj.set_book_lang(lang_mapper.get_book_lang_from_address_record(address_string))
+
+    #             address_obj.address = address_obj.address.title()
+    #             address_obj_list.append(address_obj)
+    #             if verbose_mode:
+    #                 print(f"\n{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address}{RESET}\n") # verbose mode
+    #             else:
+    #                 print(f"{GREEN}[DONE {itr+1}] {WHITE}{address_obj.address[0:100]}{RESET}", end='\r')
+    #         except Exception as err:
+    #             print(f"\n{RED}[ERROR] {address_obj.address[0:100]}{RESET}")
+    #             print(f'{YELLOW}str{err}{RESET}\n')
+    # except KeyboardInterrupt:
+    #     print(f"\n{RED}[!] Process interrupted by user!{RESET}")
+    # NOTE END: Single Threaded
 
     # address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True) # sort by length of address
     utils.update_reorder_and_repeat(address_obj_list)

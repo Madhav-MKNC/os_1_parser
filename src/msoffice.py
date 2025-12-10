@@ -3,6 +3,7 @@ from openpyxl.styles import PatternFill
 from docx import Document
 
 from src.address import Address
+from src.colors import *
 
 class MsOffice:
     def __init__(self):
@@ -19,7 +20,7 @@ class MsOffice:
         document.save(file_name)
 
     def export_to_MS_Excel(self, address_list: list, file_name: str):
-        print(f"[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]")
+        print(f"{YELLOW}[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]{RESET}")
 
         # Prepare data for DataFrame
         data = [[
@@ -105,10 +106,10 @@ class MsOffice:
                     if row_idx % 10 == 0 or row_idx == len(address_list):
                         progress = (row_idx / len(address_list)) * 100
                         bar = '█' * int(progress // 2) + '-' * (50 - int(progress // 2))
-                        print(f"\r[{bar}] {progress:.2f}% Complete", end='', flush=True)
+                        print(f"\r{YELLOW}[{bar}] {progress:.2f}% Complete{RESET}", end='', flush=True)
 
             except Exception as e:
-                print(f"\n[ERROR] An error occurred during formatting: {e}")
+                print(f"\n{RED}[ERROR] An error occurred during formatting: {e}{RESET}")
 
             # Set column widths based on header length
             for col in worksheet.columns:
@@ -117,10 +118,10 @@ class MsOffice:
                 adjusted_width = (max_length + 2)  # Add some padding to ensure visibility
                 worksheet.column_dimensions[column].width = adjusted_width
         
-        print(f"\n[ Export completed: {file_name} ✔ ]")
+        print(f"\n{GREEN}[ Export completed: {file_name} ✔ ]{RESET}")
 
     def export_to_MS_Excel_using_xlsxwriter(self, address_list: list, file_name: str):
-        print(f"[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]")
+        print(f"{YELLOW}[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]{RESET}")
 
         # Build DataFrame (vectorized; no per-cell ops)
         data = [[
@@ -188,7 +189,7 @@ class MsOffice:
             for col, w in widths.items():
                 ws.set_column(f"{col}:{col}", w)
 
-        print(f"[ Export completed: {file_name} ✔ ]")
+        print(f"{GREEN}[ Export completed: {file_name} ✔ ]{RESET}")
 
     def import_from_Excel_sheet(self, file_name: str):
         # Read the Excel file into a DataFrame
