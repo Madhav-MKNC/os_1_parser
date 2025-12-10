@@ -239,7 +239,8 @@ def process_addresses(file_text, flag='-f', verbose_mode=False, enable_sorting=N
 
     # address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True) # sort by length of address
     utils.update_reorder_and_repeat(address_obj_list)
-    phone_number.update_phone_numbers_lookup()
+    if not 'os_4_bo' in str(os.getcwd()):
+        phone_number.update_phone_numbers_lookup()
 
     # Post processing (one more iteration)
     try:
