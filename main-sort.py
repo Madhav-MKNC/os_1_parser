@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from typing import List, Dict
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 import os
 
 from src.address import Address
@@ -165,14 +165,23 @@ def process_addresses(file_text, flag='-f', verbose_mode=False, enable_sorting=T
 
     # NOTE START: MultiThreaded
     total = len(address_list)
-    max_workers = min(32, (os.cpu_count() or 4))
-    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+    
+    # Check if running locally (speed) or on Render (memory safety)
+    is_local = os.getenv('NOT_RUNNING_ON_RENDER', 'yes').lower() in ['yes', 'true', '1']
+    if is_local:
+        Executor = ProcessPoolExecutor
+        max_workers = os.cpu_count() or 4
+    else:
+        Executor = ThreadPoolExecutor
+        max_workers = min(32, (os.cpu_count() or 4))
+
+    with Executor(max_workers=max_workers) as ex:
         futs = [ex.submit(_process_one_address, ao, flag) for ao in address_list]
         for i, fut in enumerate(as_completed(futs), 1):
             res = fut.result()
             if res is not None:
                 address_obj_list.append(res)
-            if not verbose_mode and (i % 100 == 0 or i == total):
+            if not verbose_mode and (i % 1000 == 0 or i == total):
                 progress = (i / total) * 100
                 filled = int(progress // 2)
                 bar = '█' * filled + '-' * (50 - filled)
