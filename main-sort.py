@@ -181,7 +181,7 @@ def process_addresses(file_text, flag='-f', verbose_mode=False, enable_sorting=T
             res = fut.result()
             if res is not None:
                 address_obj_list.append(res)
-            if not verbose_mode and (i % 1000 == 0 or i == total):
+            if not verbose_mode and (i % 200 == 0 or i == total):
                 progress = (i / total) * 100
                 filled = int(progress // 2)
                 bar = '█' * filled + '-' * (50 - filled)
