@@ -106,7 +106,8 @@ class MsOffice:
                     if row_idx % 10 == 0 or row_idx == len(address_list):
                         progress = (row_idx / len(address_list)) * 100
                         bar = '█' * int(progress // 2) + '-' * (50 - int(progress // 2))
-                        print(f"\r{YELLOW}[{bar}] {progress:.2f}% Complete{RESET}", end='', flush=True)
+                        color = GREEN if progress == 100 else YELLOW
+                        print(f"\r{color}[{bar}] {progress:.2f}% Complete{RESET}", end='', flush=True)
 
             except Exception as e:
                 print(f"\n{RED}[ERROR] An error occurred during formatting: {e}{RESET}")

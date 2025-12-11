@@ -24,14 +24,13 @@ from src.langmapper import LanguageMapper
 
 from src.colors import *
 
-
 output_dir = "output_dir"
 
 email = Email()
 numbers_handler = NumbersHandler()
 pincode = PinCode()
 phone_number_lookup = PhoneNumberLookup()
-phone_number = PhoneNumber(phone_number_lookup)
+phone_number = PhoneNumber()
 ms_office = MsOffice()
 utils = Utils()
 mknc_utils = MKNCUtils()
@@ -126,7 +125,7 @@ def _process_one_address(address_obj: Address, flag: str) -> Address | None:
         address_obj.address = address_string
         pincode.update_pin_number(address_obj)
         # print(f"{address_obj.pin}")
-        phone_number.update_phone_number(address_obj)
+        phone_number.update_phone_number(address_obj, phone_number_lookup)
         # print(f"{address_obj.phone}")
         address_obj.address = utils.last_text_cleaner(address_obj.address)
 
@@ -177,8 +176,9 @@ def process_addresses(file_text, flag='-f', verbose_mode=False, enable_sorting=T
                 progress = (i / total) * 100
                 filled = int(progress // 2)
                 bar = '█' * filled + '-' * (50 - filled)
+                color = GREEN if progress == 100 else YELLOW
                 print(
-                    f"\r{YELLOW}[{bar}] {progress:.2f}% Complete  ({i}/{total}){RESET}",
+                    f"\r{color}[{bar}] {progress:.2f}% Complete  ({i}/{total}){RESET}",
                     end='',
                     flush=True
                 )
@@ -209,7 +209,7 @@ def process_addresses(file_text, flag='-f', verbose_mode=False, enable_sorting=T
     #             address_obj.address = address_string
     #             pincode.update_pin_number(address_obj)
     #             # print(f"{address_obj.pin}")
-    #             phone_number.update_phone_number(address_obj)
+                # phone_number.update_phone_number(address_obj, phone_number_lookup)
     #             # print(f"{address_obj.phone}")
     #             address_obj.address = utils.last_text_cleaner(address_obj.address)
 
@@ -238,8 +238,9 @@ def process_addresses(file_text, flag='-f', verbose_mode=False, enable_sorting=T
     # NOTE END: Single Threaded
 
     # address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True) # sort by length of address
-    utils.update_reorder_and_repeat(address_obj_list)
-    phone_number.update_phone_numbers_lookup()
+    utils.update_reorder_and_repeat(address_obj_list, phone_lookup=phone_number_lookup)
+    if not 'os_4_bo' in str(os.getcwd()):
+        phone_number.update_phone_numbers_lookup(phone_number_lookup)
 
     # Post processing (one more iteration)
     try:
@@ -254,8 +255,7 @@ def process_addresses(file_text, flag='-f', verbose_mode=False, enable_sorting=T
     except KeyboardInterrupt:
         print(f"\n{RED}[!] Post-processing interrupted by user!{RESET}")
 
-    print(f"\n{GREEN}[ successfully processed ]{RESET}")
-    print(f"{GREEN}[ phone_number_lookup ✔ ]{RESET}")
+    print(f"\n{BLUE}[ phone_number_lookup ✔ ]{RESET}")
     return address_obj_list
 
 def main():

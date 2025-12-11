@@ -1,14 +1,6 @@
 # Extract, collapse and pad phone numbers and pincode
 
 import re
-# from src.phone_number_lookup import PhoneNumberLookup
-# from src.phonenumber import PhoneNumber
-# from src.pincode import PinCode
-
-
-# phone_number_lookup = PhoneNumberLookup()
-# phone_number = PhoneNumber(phone_number_lookup)
-# pincode = PinCode()
 
 
 class NumbersHandler:
