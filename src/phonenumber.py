@@ -1,12 +1,11 @@
 import re
 from src.utils import Utils
-from src.phone_number_lookup import PhoneNumberLookup
 
 from src.colors import *
 
 class PhoneNumber:
 
-    def __init__(self, phone_lookup):
+    def __init__(self):
         self.utility = Utils()
         phone_number_prefixes = [" contact no ", " mobile, no ", " mobail no ", " mobile no ", " mobal nbr ", "mobail",
                                  "mobail no",
@@ -19,7 +18,6 @@ class PhoneNumber:
                                  " mob nub-", "no,",
                                  "phn num,", "phn num"]
         self.phone_number_prefixes = self.utility.reverse_list(sorted(list(set(phone_number_prefixes)), key=len))
-        self.phone_lookup = phone_lookup
     
     def collapse_phone_number_and_pin(self, text):
         return self.collapse_phone_number(text)
@@ -272,7 +270,7 @@ class PhoneNumber:
         highlighted_phone_number_regex = r"[*]\d{10,12}[*]"
         return list(set(re.findall(highlighted_phone_number_regex, address_obj.address)))
 
-    def update_phone_number(self, address_obj):
+    def update_phone_number(self, address_obj, phone_lookup):
         highlighted_phone_list = self.get_hilighted_phone_number_from_address(address_obj)
         if highlighted_phone_list is not None and len(highlighted_phone_list) > 0:
             if len(highlighted_phone_list) > 1:
@@ -281,12 +279,12 @@ class PhoneNumber:
                     phone = highlighted_phone.replace("*", "")
                     phone_list.append(phone)
                     address_obj.address = address_obj.address.replace(highlighted_phone, "").strip()
-                    is_reorder = self.phone_lookup.search_phone_number(phone)
+                    is_reorder = phone_lookup.search_phone_number(phone)
                     if is_reorder:
                         address_obj.is_reorder = is_reorder
                     else:
                         if not address_obj.faulty:
-                            self.phone_lookup.save_phone_number(int(phone))
+                            phone_lookup.save_phone_number(int(phone))
                 main_phone_string = phone_list[0]
                 alternate_phones_string = " , ".join(phone_list[1:])
                 address_obj.phone = main_phone_string
@@ -300,12 +298,12 @@ class PhoneNumber:
                 address_obj.address = (address_obj.address.replace(highlighted_phone, "").strip() + " PH " + phone)
                 address_obj.address = self.utility.text_cleaner(address_obj.address)
                 address_obj.phone = phone
-                is_reorder = self.phone_lookup.search_phone_number(phone)
+                is_reorder = phone_lookup.search_phone_number(phone)
                 address_obj.is_reorder = is_reorder
                 if not is_reorder:
                     if not address_obj.faulty: 
-                        self.phone_lookup.save_phone_number(int(phone))
+                        phone_lookup.save_phone_number(int(phone))
                 return is_reorder
 
-    def update_phone_numbers_lookup(self, numbers=[]):
-        self.phone_lookup.update_phone_numbers(numbers)
+    def update_phone_numbers_lookup(self, phone_lookup):
+        phone_lookup.update_phone_numbers()

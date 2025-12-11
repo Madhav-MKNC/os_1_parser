@@ -4,7 +4,6 @@ import unicodedata
 import string
 import os
 from src.districtmapper import DistrictMapper
-from src.phone_number_lookup import PhoneNumberLookup
 from src.statemapper import StateMapper
 from src.text_lang_mapper import LangConverter
 
@@ -13,7 +12,6 @@ class Utils:
     def __init__(self):
         self.district_mapper = DistrictMapper()
         self.state_mapper = StateMapper()
-        self.phone_lookup = PhoneNumberLookup()
         self.lang_converter = LangConverter()
 
     def generate_output_file_path(self, output_dir, file_base_name, extension):
@@ -316,7 +314,7 @@ class Utils:
                     return True, phones
         return False, phones
 
-    def update_reorder_and_repeat(self, address_list):
+    def update_reorder_and_repeat(self, address_list, phone_lookup):
         phone_number_set = set()
         for address in address_list:
             if address.phone is not None:
@@ -325,12 +323,12 @@ class Utils:
                     address.is_repeat = True
                 phone_number_set.update(phone_set)
                 for phone in phone_set:
-                    is_reorder = self.phone_lookup.search_phone_number(phone)
+                    is_reorder = phone_lookup.search_phone_number(phone)
                     if is_reorder:
                         address.is_reorder = is_reorder
                     else:
                         if not address.faulty:
-                            self.phone_lookup.save_phone_number(int(phone))
+                            phone_lookup.save_phone_number(int(phone))
 
     def read_input_file(self, file_name):
         with open(file_name, "r", encoding="utf-8") as f:
