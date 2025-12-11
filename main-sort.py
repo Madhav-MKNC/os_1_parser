@@ -239,7 +239,7 @@ def process_addresses(file_text, flag='-f', verbose_mode=False, enable_sorting=T
 
     # address_obj_list.sort(key=lambda x: len(x.address_old), reverse=True) # sort by length of address
     utils.update_reorder_and_repeat(address_obj_list, phone_lookup=phone_number_lookup)
-    if os.getenv('NOT_RUNNING_ON_RENDER', True).lower() in ['no', 'false']:
+    if os.getenv('NOT_RUNNING_ON_RENDER', 'yes').lower() in ['yes', 'true', '1']:
         phone_number.update_phone_numbers_lookup(phone_number_lookup)
 
     # Post processing (one more iteration)
