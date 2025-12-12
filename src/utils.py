@@ -81,7 +81,8 @@ class Utils:
         return text
 
     def remove_non_printable_chars(self, text):
-        cleaned_text = ''.join(char for char in text if char in string.printable)
+        # cleaned_text = ''.join(char for char in text if char in string.printable)
+        cleaned_text = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', text)
         return cleaned_text
 
     def phrases_cleaner(self, text):
@@ -210,7 +211,6 @@ class Utils:
                                    # u"\U000024C2-\U0001F251"
                                    "]+", flags=re.UNICODE)
         clean_text = emoji_pattern.sub(r'', text)
-        clean_text = ''.join(char for char in clean_text if char in string.printable)
         return clean_text
 
     def house_keeping(self, address_obj):
