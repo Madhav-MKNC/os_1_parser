@@ -23,8 +23,8 @@ class MsOffice:
     def export_to_MS_Excel(self, address_list: list, file_name: str):
         start_time = time()
 
-        self.export_to_MS_Excel_using_openpyxl(address_list=address_list, file_name=file_name)
-        # self.export_to_MS_Excel_using_openpyxl_fast(address_list=address_list, file_name=file_name)
+        # self.export_to_MS_Excel_using_openpyxl(address_list=address_list, file_name=file_name)
+        self.export_to_MS_Excel_using_xlsxwriter_fast(address_list=address_list, file_name=file_name)
         # self.export_to_MS_Excel_using_xlsxwriter(address_list=address_list, file_name=file_name)
 
         etime = time() - start_time
@@ -132,7 +132,7 @@ class MsOffice:
         
         print(f"\n{GREEN}[ Export completed: {file_name} ✔ ]{RESET}")
 
-    def export_to_MS_Excel_using_openpyxl_fast(self, address_list: list, file_name: str):
+    def export_to_MS_Excel_using_xlsxwriter_fast(self, address_list, file_name):
         print(f"{YELLOW}[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]{RESET}")
 
         # Prepare data for DataFrame
@@ -157,60 +157,61 @@ class MsOffice:
         
         df = pd.DataFrame(data, columns=columns)
 
-        # Write to Excel with conditional formatting
-        with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
+        with pd.ExcelWriter(file_name, engine="xlsxwriter", engine_kwargs={"options": {"strings_to_urls": False}}) as writer:
             df.to_excel(writer, index=False, sheet_name="Addresses")
             workbook = writer.book
-            worksheet = workbook["Addresses"]
+            worksheet = writer.sheets["Addresses"]
 
-            # Fills (same colors)
-            fill_faulty_pin   = PatternFill("solid", fgColor="FFFF00")
-            fill_faulty_phone = PatternFill("solid", fgColor="FFC0CB")
-            fill_repeat       = PatternFill("solid", fgColor="A52A2A")
-            fill_duplicate    = PatternFill("solid", fgColor="808080")
-            fill_warn         = PatternFill("solid", fgColor="FF0000")
-            fill_alert        = PatternFill("solid", fgColor="FFFF00")
+            # predefine row formats
+            fill_faulty_pin   = workbook.add_format({"bg_color": "#FFFF00"})
+            fill_faulty_phone = workbook.add_format({"bg_color": "#FFC0CB"})
+            fill_repeat       = workbook.add_format({"bg_color": "#A52A2A"})
+            fill_duplicate    = workbook.add_format({"bg_color": "#808080"})
+            fill_warm         = workbook.add_format({"bg_color": "#FF0000"})
+            fill_alert        = workbook.add_format({"bg_color": "#FFFF00"})
 
-            # Precompute conditions to avoid repeated Python branching
-            for idx, a in enumerate(address_list, start=2):  # excel row index
-                row = worksheet[idx]
+            # apply formats row-wise (VERY FAST)
+            for idx, a in enumerate(address_list, start=1):  # +1 because row 0 = header
+                fmt = None
 
-                # Determine fill ONCE (row-level)
                 if not a.phone:
                     a.faulty = "FAULTY"
 
                 if a.faulty and a.pin is None:
-                    fill = fill_faulty_pin
+                    fmt = fill_faulty_pin
                 elif a.faulty and a.phone is None:
-                    fill = fill_faulty_phone
+                    fmt = fill_faulty_phone
                 elif a.is_repeat:
-                    fill = fill_repeat
+                    fmt = fill_repeat
                 elif a.is_reorder:
-                    fill = fill_duplicate
+                    fmt = fill_duplicate
                 elif a.pin is not None and a.phone is not None:
-                    fill = None
+                    fmt = None
                 elif a.phone is not None:
-                    fill = fill_alert
+                    fmt = fill_alert
                 else:
-                    fill = fill_warn
+                    fmt = fill_warm
 
-                # Apply color to full row (no cell-level logic)
-                if fill:
-                    for cell in row:
-                        cell.fill = fill
+                if fmt:
+                    # worksheet.set_row(idx, None, fmt)
+                    row_values = df.iloc[idx - 1]  # because Excel row 1 = df row 0
+                    for col_idx, value in enumerate(row_values):
+                        worksheet.write(idx, col_idx, value, fmt)
 
-                # progress every 500 rows
-                if idx % 200 == 0 or idx == len(address_list) + 1 or idx == 0:
-                    p = idx / (len(address_list) + 1) * 100
-                    bar = '█' * int(p // 2) + '-' * (50 - int(p // 2))
+                if idx % 200 == 0 or idx == len(address_list) or idx == 0:
+                    p = idx / len(address_list) * 100
+                    bar = "█" * int(p//2) + "-" * (50-int(p//2))
                     color = GREEN if p == 100 else YELLOW
                     print(f"\r{color}[{bar}] {p:.2f}% Complete{RESET}", end='', flush=True)
 
-            # column width
-            for col in worksheet.columns:
-                header_len = len(str(col[0].value))
-                worksheet.column_dimensions[col[0].column_letter].width = header_len + 2
-        
+            # # optional: width
+            # for col, width in enumerate([45,45,14,18,18,10,12,14,16,10,18,22,22,10,14,16,18,14,12,28,10]):
+            #     worksheet.set_column(col, col, width)
+
+            # Set column widths based on header length (xlsxwriter version)
+            for col_idx, header in enumerate(columns):
+                worksheet.set_column(col_idx, col_idx, len(header) + 2)
+
         print(f"\n{GREEN}[ Export completed: {file_name} ✔ ]{RESET}")
 
     def export_to_MS_Excel_using_xlsxwriter(self, address_list: list, file_name: str):
