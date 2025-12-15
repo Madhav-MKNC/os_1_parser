@@ -20,6 +20,10 @@ class MsOffice:
         document.save(file_name)
 
     def export_to_MS_Excel(self, address_list: list, file_name: str):
+        self.export_to_MS_Excel_using_openpyxl(address_list=address_list, file_name=file_name)
+        # self.export_to_MS_Excel_using_xlsxwriter(address_list=address_list, file_name=file_name)
+
+    def export_to_MS_Excel_using_openpyxl(self, address_list: list, file_name: str):
         print(f"{YELLOW}[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]{RESET}")
 
         # Prepare data for DataFrame
