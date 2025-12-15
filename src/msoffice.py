@@ -1,6 +1,7 @@
 import pandas as pd
 from openpyxl.styles import PatternFill
 from docx import Document
+from time import time
 
 from src.address import Address
 from src.colors import *
@@ -20,8 +21,14 @@ class MsOffice:
         document.save(file_name)
 
     def export_to_MS_Excel(self, address_list: list, file_name: str):
+        start_time = time()
+
         self.export_to_MS_Excel_using_openpyxl(address_list=address_list, file_name=file_name)
+        # self.export_to_MS_Excel_using_openpyxl_fast(address_list=address_list, file_name=file_name)
         # self.export_to_MS_Excel_using_xlsxwriter(address_list=address_list, file_name=file_name)
+
+        etime = time() - start_time
+        print(f"\n\nTotal Execution Time: {etime // 60} mins {etime % 60} seconds\n\n")
 
     def export_to_MS_Excel_using_openpyxl(self, address_list: list, file_name: str):
         print(f"{YELLOW}[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]{RESET}")
@@ -107,7 +114,7 @@ class MsOffice:
                             row[col_idx].fill = style_warn
 
                     # Print progress bar (every 1000 rows, adjust as needed)
-                    if row_idx % 10 == 0 or row_idx == len(address_list):
+                    if row_idx % 200 == 0 or row_idx == len(address_list) or row_idx == 0:
                         progress = (row_idx / len(address_list)) * 100
                         bar = '█' * int(progress // 2) + '-' * (50 - int(progress // 2))
                         color = GREEN if progress == 100 else YELLOW
@@ -122,6 +129,87 @@ class MsOffice:
                 column = col[0].column_letter  # Get the column name
                 adjusted_width = (max_length + 2)  # Add some padding to ensure visibility
                 worksheet.column_dimensions[column].width = adjusted_width
+        
+        print(f"\n{GREEN}[ Export completed: {file_name} ✔ ]{RESET}")
+
+    def export_to_MS_Excel_using_openpyxl_fast(self, address_list: list, file_name: str):
+        print(f"{YELLOW}[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]{RESET}")
+
+        # Prepare data for DataFrame
+        data = [[
+            address.address_old, address.address, address.state, address.district,
+            address.block, address.pin, address.country_code,
+            address.phone, address.alternate_phone, 
+            "YES" if address.is_reorder else "NO",
+            address.name, address.district_from_address, address.state_from_address,
+            address.occ_count, address.dist_matches_pin_and_addr, address.state_matches_pin_and_addr,
+            address.book_name, address.book_lang, "YES" if address.is_repeat else "NO", address.email, address.faulty
+        ] for address in address_list]
+        
+        # Create DataFrame for easier handling
+        columns = [
+            "ADDRESS ORIGINAL", "ADDRESS UPDATED", "STATE", "DISTRICT", "BLOCK", "PIN", 
+            "COUNTRY CODE", "PHONE", "ALTERNATE PHONE", "RE_ORDER",
+            "NAME", "DISTRICT_FROM_ADDRESS", "STATE_FROM_ADDRESS", "DISTRICT_MATCH_COUNT",
+            "DIST_MATCHES_PIN_AND_ADDR", "STATE_MATCHES_PIN_AND_ADDR", "BOOK NAME", "BOOK LANG", 
+            "REPEAT ORDER", "EMAIL", "FAULTY"
+        ]
+        
+        df = pd.DataFrame(data, columns=columns)
+
+        # Write to Excel with conditional formatting
+        with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name="Addresses")
+            workbook = writer.book
+            worksheet = workbook["Addresses"]
+
+            # Fills (same colors)
+            fill_faulty_pin   = PatternFill("solid", fgColor="FFFF00")
+            fill_faulty_phone = PatternFill("solid", fgColor="FFC0CB")
+            fill_repeat       = PatternFill("solid", fgColor="A52A2A")
+            fill_duplicate    = PatternFill("solid", fgColor="808080")
+            fill_warn         = PatternFill("solid", fgColor="FF0000")
+            fill_alert        = PatternFill("solid", fgColor="FFFF00")
+
+            # Precompute conditions to avoid repeated Python branching
+            for idx, a in enumerate(address_list, start=2):  # excel row index
+                row = worksheet[idx]
+
+                # Determine fill ONCE (row-level)
+                if not a.phone:
+                    a.faulty = "FAULTY"
+
+                if a.faulty and a.pin is None:
+                    fill = fill_faulty_pin
+                elif a.faulty and a.phone is None:
+                    fill = fill_faulty_phone
+                elif a.is_repeat:
+                    fill = fill_repeat
+                elif a.is_reorder:
+                    fill = fill_duplicate
+                elif a.pin is not None and a.phone is not None:
+                    fill = None
+                elif a.phone is not None:
+                    fill = fill_alert
+                else:
+                    fill = fill_warn
+
+                # Apply color to full row (no cell-level logic)
+                if fill:
+                    for cell in row:
+                        cell.fill = fill
+
+                # progress every 500 rows
+                if idx % 200 == 0 or idx == len(address_list) + 1 or idx == 0:
+                    p = idx / (len(address_list) + 1) * 100
+                    bar = '█' * int(p // 2) + '-' * (50 - int(p // 2))
+                    color = GREEN if p == 100 else YELLOW
+                    print(f"\r{color}[{bar}] {p:.2f}% Complete{RESET}", end='', flush=True)
+
+            # column width
+            for col in worksheet.columns:
+                header_len = len(str(col[0].value))
+                worksheet.column_dimensions[col[0].column_letter].width = header_len + 2
         
         print(f"\n{GREEN}[ Export completed: {file_name} ✔ ]{RESET}")
 
