@@ -28,7 +28,7 @@ class MsOffice:
         # self.export_to_MS_Excel_using_xlsxwriter(address_list=address_list, file_name=file_name)
 
         etime = time() - start_time
-        print(f"\n\nTotal Execution Time: {etime // 60} mins {etime % 60} seconds\n\n")
+        print(f"\n\nExport Time: {etime // 60} mins {etime % 60} seconds")
 
     def export_to_MS_Excel_using_openpyxl(self, address_list: list, file_name: str):
         print(f"{YELLOW}[ Exporting {len(address_list)} addresses to Excel file: {file_name} ]{RESET}")

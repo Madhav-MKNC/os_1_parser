@@ -312,4 +312,8 @@ def main():
 
 
 if __name__ == "__main__":
+    from time import time as now
+    start = now()
     main()
+    etime = now() - start
+    print(f"\n\nFull Execution Time: {etime//60} mins {etime%60} seconds.\n\n")
