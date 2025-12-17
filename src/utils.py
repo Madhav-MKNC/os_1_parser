@@ -82,7 +82,8 @@ class Utils:
 
     def remove_non_printable_chars(self, text):
         # cleaned_text = ''.join(char for char in text if char in string.printable)
-        cleaned_text = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', text)
+        cleaned_text = re.sub(r'[\x00-\x1F\x7F-\x9F]', ' ', text)
+        print(cleaned_text)
         return cleaned_text
 
     def phrases_cleaner(self, text):
